@@ -16,7 +16,17 @@ export default function LoginForm() {
 
   async function loginUser(event){
     event.preventDefault();
-    
+    const response = await fetch("http://localhost:4000/api/user/login",{
+      method: "POST",
+      body: JSON.stringify({ username, password }),
+      headers: { "Content-Type": "application/json" },
+      credentials: 'include'
+    });
+    if (response.ok){
+      console.log("logged in");
+    }else{
+      console.log('could not login');
+    }
   }
 
   return (

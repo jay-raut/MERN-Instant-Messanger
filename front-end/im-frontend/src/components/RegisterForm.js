@@ -46,7 +46,7 @@ export default function RegisterForm() {
       return;
     }
 
-    const response = await fetch("http://localhost:4000/register", {
+    const response = await fetch("http://localhost:4000/api/user/register", {
       method: "POST",
       body: JSON.stringify({ firstname, lastname, username, password }),
       headers: { "Content-Type": "application/json" },
@@ -54,7 +54,7 @@ export default function RegisterForm() {
     if (response.ok) {
         setSnackBarVisible(true);
         setSnackBarMessage("Created user successfully");
-        
+
     } else {
       const error = await response.json();
       setSnackBarVisible(true);
