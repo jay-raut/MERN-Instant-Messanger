@@ -68,4 +68,23 @@ router.post("/login", async (req, res) => {
   }
 });
 
+router.get("/find-user", async (req, res) => {
+  try {
+    const searchQuery = req.query.search;
+
+    let query = {};
+    if (searchQuery) {
+      query = {
+        $or: [{ first_name: { $regex: searchQuery, $options: "i" } }, { last_name: { $regex: searchQuery, $options: "i" } }, { username: { $regex: searchQuery, $options: "i" } }],
+      };
+    }
+
+    const users = await User.find(query);
+    res.status(200).json({ users });
+  } catch (error) {
+    console.error("Error finding users:", error);
+    res.status(500).json({ error: "An unexpected error occurred." });
+  }
+});
+
 module.exports = router;
