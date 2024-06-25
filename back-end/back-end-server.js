@@ -4,6 +4,8 @@ const cors = require("cors");
 const app = express();
 const cookieparser = require("cookie-parser");
 const UserRoutes = require("./routes/UserRoutes");
+const ChatRoutes = require("./routes/ChatRoutes");
+
 
 
 const mongoose = require("mongoose");
@@ -21,7 +23,7 @@ app.use(
 );
 
 app.use('/api/user', UserRoutes);
-
+app.use('/api/chat', ChatRoutes);
 
 
 app.listen(4000, console.log("Server started on port 4000"));
