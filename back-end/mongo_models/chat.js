@@ -9,6 +9,7 @@ const chatModel = mongoose.Schema({
       ref: "User",
     },
   ],
+  latestMessage: {type: mongoose.Schema.Types.ObjectId}
 });
 
 const Chat = mongoose.model("Chat", chatModel);
