@@ -55,8 +55,8 @@ router.post("/group", async (req, res) => {
     if (!receiver) {
       return res.status(400).json({ message: "no receiver specified" });
     }
-    if (!chatName){
-        return res.status(400).json({message: "No chat name specified"});
+    if (!chatName) {
+      return res.status(400).json({ message: "No chat name specified" });
     }
     if (!receiver.users.includes(info.userID)) {
       receiver.users.push(info.userID);
@@ -133,8 +133,8 @@ router.post("/rename", async (req, res) => {
       if (!chat) {
         return res.status(404).json({ message: "Chat not found" });
       }
-      if (!chat.users.includes(info.userID)){
-        return res.status(403).json({message: "you are not authorized to rename this chat"});
+      if (!chat.users.includes(info.userID)) {
+        return res.status(403).json({ message: "you are not authorized to rename this chat" });
       }
       chat.chatname = newName;
       await chat.save();
@@ -147,6 +147,41 @@ router.post("/rename", async (req, res) => {
   });
 });
 
-
+router.post("/adduser", async (req, res) => {
+  const { token } = req.cookies;
+  if (!token) {
+    return res.status(403).json({ message: "No token provided" });
+  }
+  jwt.verify(token, secret, {}, async (err, info) => {
+    if (err) {
+      return res.status(403).json({ message: "Invalid token" });
+    }
+    const { groupChatID, newUserID } = req.body;
+    if (!groupChatID || !newUserID) {
+      return res.status(400).json({ message: "missing group chat id or new user id" });
+    }
+    try {
+      const chat = await Chat.findById(groupChatID);
+      if (!chat) {
+        return res.status(404).json({ message: "Chat not found" });
+      }
+      if (!chat.users.includes(info.userID)) {
+        return res.status(403).json({ message: "you are not authorized to rename this chat" });
+      }
+      if (chat.users.includes(newUserID)) {
+        return res.status(400).json({ message: "User is already in the chat" });
+      }
+      chat.users.push(newUserID);
+      if (chat.users.length > 2) {
+        chat.isGroupChat = true;
+      }
+      await chat.save();
+      return res.status(200).json({ message: "User added successfully", chat });
+    } catch (e) {
+      console.log(e);
+      res.status(500);
+    }
+  });
+});
 
 module.exports = router;
