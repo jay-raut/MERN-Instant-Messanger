@@ -55,6 +55,9 @@ router.post("/group", async (req, res) => {
     if (!receiver) {
       return res.status(400).json({ message: "no receiver specified" });
     }
+    if (!chatName){
+        return res.status(400).json({message: "No chat name specified"});
+    }
     if (!receiver.users.includes(info.userID)) {
       receiver.users.push(info.userID);
     }
@@ -63,7 +66,7 @@ router.post("/group", async (req, res) => {
     }
 
     const chatData = {
-      chatName: chatName,
+      chatname: chatName,
       isGroupChat: true,
       users: receiver.users,
       latestMessage: null,
@@ -110,5 +113,40 @@ router.get("/", async (req, res) => {
     }
   });
 });
+
+router.post("/rename", async (req, res) => {
+  const { token } = req.cookies;
+  if (!token) {
+    return res.status(403).json({ message: "No token provided" });
+  }
+
+  jwt.verify(token, secret, {}, async (err, info) => {
+    if (err) {
+      return res.status(403).json({ message: "Invalid token" });
+    }
+    const { groupChatID, newName } = req.body;
+    if (!groupChatID || !newName) {
+      return res.status(400).json({ message: "missing group chat ID or new name" });
+    }
+    try {
+      const chat = await Chat.findById(groupChatID);
+      if (!chat) {
+        return res.status(404).json({ message: "Chat not found" });
+      }
+      if (!chat.users.includes(info.userID)){
+        return res.status(403).json({message: "you are not authorized to rename this chat"});
+      }
+      chat.chatname = newName;
+      await chat.save();
+
+      return res.status(200).json({ message: "Chat renamed successfully", chat });
+    } catch (e) {
+      console.log(e);
+      res.status(500);
+    }
+  });
+});
+
+
 
 module.exports = router;
