@@ -24,6 +24,7 @@ export default function LoginForm() {
     });
     if (response.ok){
       console.log("logged in");
+      window.location.reload();
     }else{
       console.log('could not login');
     }

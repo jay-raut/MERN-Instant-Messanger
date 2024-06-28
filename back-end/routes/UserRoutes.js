@@ -5,7 +5,8 @@ const User = require("../mongo_models/users");
 const Message = require("../mongo_models/message");
 const Chat = require("../mongo_models/chat");
 const generateToken = require("../generate_jwt");
-
+const jwt = require("jsonwebtoken");
+const secret = process.env.secret_token_key;
 router.post("/register", async (req, res) => {
   const { firstname, lastname, username, password } = req.body;
 
@@ -79,12 +80,27 @@ router.get("/find-user", async (req, res) => {
       };
     }
 
-    const users = await User.find(query);
+    const users = await User.find(query).select("-password").select("-createdAt").select("-updatedAt").select("-__v");
     res.status(200).json({ users });
   } catch (error) {
     console.error("Error finding users:", error);
     res.status(500).json({ error: "An unexpected error occurred." });
   }
+});
+
+router.get("/profile", (req, res) => {
+  const { token } = req.cookies;
+
+  if (!token) {
+    return res.status(400).json({ message: "No token provided" });
+  }
+
+  jwt.verify(token, secret, {}, (err, info) => {
+    if (err) {
+      return res.status(403).json({ message: "Invalid token" });
+    }
+    res.status(200).json(info);
+  });
 });
 
 module.exports = router;

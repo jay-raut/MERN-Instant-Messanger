@@ -1,10 +1,20 @@
-import React, { useState } from "react";
+import React, {useState, useEffect } from "react";
 import { Container, Box, Typography, Tabs, Tab } from "@mui/material";
 import LoginForm from "../components/LoginForm";
 import RegisterForm from "../components/RegisterForm";
+import { useNavigate } from "react-router-dom";
+import { ChatState } from "../Context/ChatProvider";
 
 export default function Homepage() {
   const [activeTab, setActiveTab] = useState(0);
+  const navigate = useNavigate();
+  const { user } = ChatState();
+  useEffect(() => {
+    if (user && Object.keys(user).length > 0) {
+      console.log('User logged in, redirecting to /chats');
+      navigate('/chats');
+    }
+  }, [user, navigate]);
 
   const handleTabChange = (event, newValue) => {
     setActiveTab(newValue);
