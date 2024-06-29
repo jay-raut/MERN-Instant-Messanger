@@ -2,8 +2,6 @@ const express = require("express");
 const bcrypt = require("bcryptjs");
 const router = express.Router();
 const User = require("../mongo_models/users");
-const Message = require("../mongo_models/message");
-const Chat = require("../mongo_models/chat");
 const generateToken = require("../generate_jwt");
 const jwt = require("jsonwebtoken");
 const secret = process.env.secret_token_key;
@@ -70,22 +68,34 @@ router.post("/login", async (req, res) => {
 });
 
 router.get("/find-user", async (req, res) => {
-  try {
-    const searchQuery = req.query.search;
+  const { token } = req.cookies;
 
-    let query = {};
-    if (searchQuery) {
-      query = {
-        $or: [{ first_name: { $regex: searchQuery, $options: "i" } }, { last_name: { $regex: searchQuery, $options: "i" } }, { username: { $regex: searchQuery, $options: "i" } }],
-      };
+  if (!token) {
+    return res.status(403).json({ message: "No token provided" });
+  }
+
+  jwt.verify(token, secret, {}, async (err, info) => {
+    if (err) {
+      return res.status(403).json({ message: "Invalid token" });
     }
 
-    const users = await User.find(query).select("-password").select("-createdAt").select("-updatedAt").select("-__v");
-    res.status(200).json({ users });
-  } catch (error) {
-    console.error("Error finding users:", error);
-    res.status(500).json({ error: "An unexpected error occurred." });
-  }
+    try {
+      const searchQuery = req.query.search;
+      let query = {};
+      if (searchQuery) {
+        query = {
+          $or: [{ first_name: { $regex: searchQuery, $options: "i" } }, { last_name: { $regex: searchQuery, $options: "i" } }, { username: { $regex: searchQuery, $options: "i" } }],
+        };
+        query._id = {$ne: info.userID};
+      }
+
+      const users = await User.find(query).select("-password").select("-createdAt").select("-updatedAt").select("-__v");
+      res.status(200).json({ users });
+    } catch (error) {
+      console.error("Error finding users:", error);
+      res.status(500).json({ error: "An unexpected error occurred." });
+    }
+  });
 });
 
 router.get("/profile", (req, res) => {

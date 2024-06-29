@@ -17,7 +17,8 @@ export default function SearchSideDrawer() {
   const [loading, setLoading] = useState(false);
   const [snackBarVisible, setSnackBarVisible] = useState(false);
   const [snackBarMessage, setSnackBarMessage] = useState("");
-  useEffect(() => { //useState is async ??
+  useEffect(() => {
+    //useState is async ??
     if (searchResult.length === 0 && hasSeached) {
       setSnackBarMessage("No results founds");
       setSnackBarVisible(true);
@@ -38,17 +39,28 @@ export default function SearchSideDrawer() {
         headers: { "Content-Type": "application/json" },
         credentials: "include",
       });
-      const search_results = await response.json();
 
-      setSearchResult(search_results.users);
-      setLoading(false);
-      setHasSearched(true);
+      if (response.ok) {
+        const search_results = await response.json();
+        setSearchResult(search_results.users);
+        setLoading(false);
+        setHasSearched(true);
+      } else {
+        console.log(response);
+        setSnackBarMessage("Unable to search for users try loading");
+        setSnackBarVisible(true);
+        setLoading(false);
+      }
     } catch (e) {
       console.log(e);
       setSnackBarMessage("Unable to search for users try loading");
       setSnackBarVisible(true);
       setLoading(false);
     }
+  }
+
+  function handleSearchClick(user) {
+    console.log(user);
   }
   return (
     <>
@@ -115,7 +127,7 @@ export default function SearchSideDrawer() {
             </IconButton>
             <SnackBar open={snackBarVisible} setOpen={setSnackBarVisible} message={snackBarMessage}></SnackBar>
           </Box>
-          {loading ? <LoadingUsers /> : <>{searchResult.length === 0 ? <div></div> : searchResult.map((user) => <ListUsersSearch key={user.id} user={user} handleClick={null} />)}</>}
+          {loading ? <LoadingUsers /> : <>{searchResult.length === 0 ? <div></div> : searchResult.map((user) => <ListUsersSearch key={user._id} user={user} handleClick={handleSearchClick} />)}</>}
         </Box>
       </Drawer>
     </>
