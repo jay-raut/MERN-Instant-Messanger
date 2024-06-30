@@ -5,6 +5,8 @@ const ChatContext = createContext();
 
 const ChatProvider = ({ children }) => {
   const [user, setUser] = useState({});
+  const [currentChat, setCurrentChat] = useState();
+  const [chats, setChats] = useState([]);
   const navigate = useNavigate();
   useEffect(() => {
     async function getProfile() {
@@ -22,7 +24,7 @@ const ChatProvider = ({ children }) => {
     getProfile();
   }, [navigate]);
 
-  return <ChatContext.Provider value={{ user, setUser }}>{children}</ChatContext.Provider>;
+  return <ChatContext.Provider value={{ user, setUser, currentChat, setCurrentChat, chats, setChats }}>{children}</ChatContext.Provider>;
 };
 
 export const ChatState = () => {

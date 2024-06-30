@@ -13,8 +13,9 @@ router.post("/", async (req, res) => {
     if (err) {
       return res.status(403).json({ message: "Invalid token" });
     }
+
     const { receiver, chatName } = req.body;
-    if (!receiver || !chatName) {
+    if (!receiver || !chatName || !receiver._id) {
       return res.status(400).json({ message: "no receiver or chat name specified" });
     }
     const chatData = {
@@ -52,7 +53,7 @@ router.post("/group", async (req, res) => {
       return res.status(403).json({ message: "Invalid token" });
     }
     const { receiver, chatName } = req.body;
-    if (!receiver) {
+    if (!receiver || !receiver.users) {
       return res.status(400).json({ message: "no receiver specified" });
     }
     if (!chatName) {

@@ -9,6 +9,7 @@ import InputBase from "@mui/material/InputBase";
 import SnackBar from "./Snackbar";
 import LoadingUsers from "./LoadingUsers";
 import ListUsersSearch from "./ListUsersSearch";
+import { ChatState } from "../Context/ChatProvider";
 export default function SearchSideDrawer() {
   const [isDrawerOpen, setDrawerOpen] = useState(false);
   const [hasSeached, setHasSearched] = useState(false);
@@ -17,6 +18,8 @@ export default function SearchSideDrawer() {
   const [loading, setLoading] = useState(false);
   const [snackBarVisible, setSnackBarVisible] = useState(false);
   const [snackBarMessage, setSnackBarMessage] = useState("");
+  const { user, setCurrentChat } = ChatState();
+  const { chats, setChats } = ChatState();
   useEffect(() => {
     //useState is async ??
     if (searchResult.length === 0 && hasSeached) {
@@ -59,8 +62,31 @@ export default function SearchSideDrawer() {
     }
   }
 
-  function handleSearchClick(user) {
-    console.log(user);
+  async function handleSearchClick(user) {
+    //when a searched user is clicked in the search drawer
+    const receiver = { _id: user._id };
+    try {
+      const response = await fetch("http://localhost:4000/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ receiver, chatName: "Untitled" }),
+      });
+      if (response.ok) {
+        console.log("created one on one chat");
+        if (!chats.find((c) => c.id === response.chat._id)){ //if this is a new chat with this user then append this new chat to the chats list
+            setChats([response.chat, ...chats]);
+        }
+        setDrawerOpen(false);
+        setCurrentChat(response.chat);
+      } else {
+        console.log(response);
+        snackBarMessage("Something went wrong");
+        snackBarVisible(true);
+      }
+    } catch (e) {
+      console.log(e);
+    }
   }
   return (
     <>
@@ -75,7 +101,7 @@ export default function SearchSideDrawer() {
           color: "white",
           marginLeft: -2,
         }}>
-        <MenuIcon />
+        <SearchIcon />
       </IconButton>
       <Drawer anchor="left" open={isDrawerOpen} onClose={() => setDrawerOpen(false)}>
         <Box p={2} width="400px" textAlign="center" role="presentation" sx={{ position: "relative", padding: 0 }}>
