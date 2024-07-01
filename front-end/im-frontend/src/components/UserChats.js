@@ -1,16 +1,6 @@
 import React, { useEffect } from "react";
 import { ChatState } from "../Context/ChatProvider";
-import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
-import Button from "@mui/material/Button";
-import Stack from "@mui/material/Stack";
-import Avatar from "@mui/material/Avatar";
-import { AvatarGroup, List } from "@mui/material";
-import ListItem from "@mui/material/ListItem";
-import ListItemAvatar from "@mui/material/ListItemAvatar";
-import ListItemText from "@mui/material/ListItemText";
-
-
+import { Box, Typography, Button, Avatar, AvatarGroup, List, ListItem, ListItemAvatar, ListItemText } from "@mui/material";
 
 export default function UserChats() {
   const { currentChat, setCurrentChat, chats, setChats } = ChatState();
@@ -26,27 +16,31 @@ export default function UserChats() {
         const response_chats = await response.json();
         setChats(response_chats.chats); // Set chats state correctly
       } else {
+        console.error("Failed to fetch chats:", response.statusText);
       }
     } catch (error) {
       console.error("Error fetching chats:", error);
     }
   }
+
   useEffect(() => {
     getUserChats();
   }, []);
 
+  function compareChatID(chat1, chat2) {
+    return chat1?._id === chat2?._id;
+  }
+  console.log(chats)
   return (
     <Box
       sx={{
+        display: "flex",
+        flexDirection: "column",
+        height: "100%", // Full viewport height
+        width: "100%",
         boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.4)",
-        p: 2,
-        width: "50%",
         borderRadius: "10px",
-        margin: "5px",
-        maxWidth: "400px",
-        height: "100%",
-        minHeight: "100vh",
-        maxHeight: "100%",
+        overflow: "hidden", // Ensure no overflow outside the box
       }}>
       <Box
         sx={{
@@ -59,56 +53,50 @@ export default function UserChats() {
           New Group Chat
         </Button>
       </Box>
-      <List sx={{ maxHeight: "100%", overflow: "auto", minHeight: "100%", height: "100%" }}>
-        {chats && chats.length > 0 ? (
-          chats.map((chat) => (
-            <ListItem
-              key={chat._id}
-              onClick={() => setCurrentChat(chat)}
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                padding: 2,
-                cursor: "pointer",
-                backgroundColor: currentChat === chat ? "#e0e0e0" : "transparent",
-                "&:hover": {
-                  backgroundColor: "#e0e0e0",
-                },
-                borderRadius: "10px",
-              }}>
-              <ListItemAvatar>
-                {!chat.isGroupChat ? (
-                  <Avatar>{`${chat.users[0].first_name.charAt(0).toUpperCase()}`}</Avatar>
-                ) : (
-                  <AvatarGroup max={2}>
-                    {chat.users.map((user) => (
-                      <Avatar key={user._id}>{`${user.first_name.charAt(0).toUpperCase()}`}</Avatar>
-                    ))}
-                  </AvatarGroup>
-                )}
-              </ListItemAvatar>
-
-              {!chat.isGroupChat ? (
-                <>
-                  <Box sx={{ marginLeft: 2 }}>
-                    <Typography>{`${chat.users[0].first_name} ${chat.users[0].last_name}`}</Typography>
-                    {chat.latestMessage !== null ? <Typography>{chat.latestMessage}</Typography> : <Typography>{chat.users[0].username}: No latest message</Typography>}
-                  </Box>
-                </>
-              ) : (
-                <>
-                  <Box sx={{ marginLeft: 2 }}>
-                    <Typography>{chat.chatname}</Typography>
-                    {chat.latestMessage !== null ? <Typography>{chat.latestMessage}</Typography> : <Typography>No latest message</Typography>}
-                  </Box>
-                </>
-              )}
-            </ListItem>
-          ))
-        ) : (
-          <Typography variant="body1">Chats are empty</Typography>
-        )}
-      </List>
+      <Box
+        sx={{
+          flexGrow: 1,
+          overflowY: "auto", // Allow vertical scrolling
+        }}>
+        <List sx={{ width: "100%" }}>
+          {chats && chats.length > 0 ? (
+            chats.map((chat) => (
+              <ListItem
+                key={chat._id}
+                onClick={() => setCurrentChat(chat)}
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  padding: 2,
+                  cursor: "pointer",
+                  backgroundColor: compareChatID(currentChat, chat) ? "#e0e0e0" : "transparent",
+                  "&:hover": {
+                    backgroundColor: "#e0e0e0",
+                  },
+                  borderRadius: "10px",
+                }}>
+                <ListItemAvatar>
+                  {!chat.isGroupChat ? (
+                    <Avatar>{`${chat.users[0].first_name.charAt(0).toUpperCase()}`}</Avatar>
+                  ) : (
+                    <AvatarGroup max={2}>
+                      {chat.users.map((user) => (
+                        <Avatar key={user._id}>{`${user.first_name.charAt(0).toUpperCase()}`}</Avatar>
+                      ))}
+                    </AvatarGroup>
+                  )}
+                </ListItemAvatar>
+                <ListItemText
+                  primary={!chat.isGroupChat ? `${chat.users[0].first_name} ${chat.users[0].last_name}` : chat.chatname}
+                  secondary={chat.latestMessage !== null ? chat.latestMessage : !chat.isGroupChat ? `${chat.users[0].username}: No latest message` : "No latest message"}
+                />
+              </ListItem>
+            ))
+          ) : (
+            <Typography variant="body1">Chats are empty</Typography>
+          )}
+        </List>
+      </Box>
     </Box>
   );
 }

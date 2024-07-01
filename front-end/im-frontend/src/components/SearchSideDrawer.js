@@ -74,7 +74,7 @@ export default function SearchSideDrawer() {
       });
       if (response.ok) {
         const searched_chat = await response.json();
-        const chatsContains = chats.find((c) => c._id === searched_chat.chat._id); //search for this chat
+        const chatsContains = chats.find((c) => c._id === searched_chat.chat._id); //search for this chat 
         if (!chatsContains) {
           //if this is a new chat with this user then append this new chat to the chats list
           setChats([searched_chat.chat, ...chats]);
@@ -84,8 +84,8 @@ export default function SearchSideDrawer() {
         }
         setDrawerOpen(false);
       } else {
-        snackBarMessage("Something went wrong");
-        snackBarVisible(true);
+        setSnackBarMessage("Something went wrong");
+        setSnackBarVisible(true);
       }
     } catch (e) {
       console.log(e);
