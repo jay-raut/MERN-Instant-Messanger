@@ -18,7 +18,7 @@ export default function SearchSideDrawer() {
   const [loading, setLoading] = useState(false);
   const [snackBarVisible, setSnackBarVisible] = useState(false);
   const [snackBarMessage, setSnackBarMessage] = useState("");
-  const { user, setCurrentChat } = ChatState();
+  const { user, setCurrentChat, currentChat } = ChatState();
   const { chats, setChats } = ChatState();
   useEffect(() => {
     //useState is async ??
@@ -73,14 +73,17 @@ export default function SearchSideDrawer() {
         body: JSON.stringify({ receiver, chatName: "Untitled" }),
       });
       if (response.ok) {
-        console.log("created one on one chat");
-        if (!chats.find((c) => c.id === response.chat._id)){ //if this is a new chat with this user then append this new chat to the chats list
-            setChats([response.chat, ...chats]);
+        const searched_chat = await response.json();
+        const chatsContains = chats.find((c) => c._id === searched_chat.chat._id); //search for this chat
+        if (!chatsContains) {
+          //if this is a new chat with this user then append this new chat to the chats list
+          setChats([searched_chat.chat, ...chats]);
+          setCurrentChat(searched_chat.chat);
+        } else {
+          setCurrentChat(chatsContains);
         }
         setDrawerOpen(false);
-        setCurrentChat(response.chat);
       } else {
-        console.log(response);
         snackBarMessage("Something went wrong");
         snackBarVisible(true);
       }

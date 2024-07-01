@@ -5,6 +5,12 @@ import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import Stack from "@mui/material/Stack";
 import Avatar from "@mui/material/Avatar";
+import { AvatarGroup, List } from "@mui/material";
+import ListItem from "@mui/material/ListItem";
+import ListItemAvatar from "@mui/material/ListItemAvatar";
+import ListItemText from "@mui/material/ListItemText";
+
+
 
 export default function UserChats() {
   const { currentChat, setCurrentChat, chats, setChats } = ChatState();
@@ -20,17 +26,14 @@ export default function UserChats() {
         const response_chats = await response.json();
         setChats(response_chats.chats); // Set chats state correctly
       } else {
-        console.log(response);
       }
     } catch (error) {
       console.error("Error fetching chats:", error);
     }
   }
-
   useEffect(() => {
     getUserChats();
   }, []);
-  console.log(chats);
 
   return (
     <Box
@@ -41,6 +44,9 @@ export default function UserChats() {
         borderRadius: "10px",
         margin: "5px",
         maxWidth: "400px",
+        height: "100%",
+        minHeight: "100vh",
+        maxHeight: "100%",
       }}>
       <Box
         sx={{
@@ -53,10 +59,10 @@ export default function UserChats() {
           New Group Chat
         </Button>
       </Box>
-      <Stack spacing={2}>
+      <List sx={{ maxHeight: "100%", overflow: "auto", minHeight: "100%", height: "100%" }}>
         {chats && chats.length > 0 ? (
           chats.map((chat) => (
-            <Box
+            <ListItem
               key={chat._id}
               onClick={() => setCurrentChat(chat)}
               sx={{
@@ -70,23 +76,39 @@ export default function UserChats() {
                 },
                 borderRadius: "10px",
               }}>
+              <ListItemAvatar>
+                {!chat.isGroupChat ? (
+                  <Avatar>{`${chat.users[0].first_name.charAt(0).toUpperCase()}`}</Avatar>
+                ) : (
+                  <AvatarGroup max={2}>
+                    {chat.users.map((user) => (
+                      <Avatar key={user._id}>{`${user.first_name.charAt(0).toUpperCase()}`}</Avatar>
+                    ))}
+                  </AvatarGroup>
+                )}
+              </ListItemAvatar>
+
               {!chat.isGroupChat ? (
                 <>
-                  <Avatar>{`${chat.users[1].first_name.charAt(0).toUpperCase()}`}</Avatar>
                   <Box sx={{ marginLeft: 2 }}>
-                    <Typography variant="subtitle1">{`${chat.users[1].first_name} ${chat.users[1].last_name}`}</Typography>
-                    <Typography variant="subtitle2">{`${chat.users[1].username}`}</Typography>
+                    <Typography>{`${chat.users[0].first_name} ${chat.users[0].last_name}`}</Typography>
+                    {chat.latestMessage !== null ? <Typography>{chat.latestMessage}</Typography> : <Typography>{chat.users[0].username}: No latest message</Typography>}
                   </Box>
                 </>
               ) : (
-                <Typography variant="body1">Group Chat</Typography>
+                <>
+                  <Box sx={{ marginLeft: 2 }}>
+                    <Typography>{chat.chatname}</Typography>
+                    {chat.latestMessage !== null ? <Typography>{chat.latestMessage}</Typography> : <Typography>No latest message</Typography>}
+                  </Box>
+                </>
               )}
-            </Box>
+            </ListItem>
           ))
         ) : (
           <Typography variant="body1">Chats are empty</Typography>
         )}
-      </Stack>
+      </List>
     </Box>
   );
 }

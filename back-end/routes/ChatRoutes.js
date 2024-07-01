@@ -32,9 +32,20 @@ router.post("/", async (req, res) => {
       });
 
       if (existingChat) {
+        await existingChat.populate({
+          path: "users",
+          match: { _id: { $ne: info.userID } },
+          select: "-password",
+        });
         return res.status(200).json({ chat: existingChat });
       }
       const newChat = await Chat.create(chatData);
+      await newChat.populate({
+        path: "users",
+        match: { _id: { $ne: info.userID } },
+        select: "-password",
+      });
+  
       res.status(200).json({ chat: newChat });
     } catch (e) {
       console.log(e);
@@ -80,9 +91,25 @@ router.post("/group", async (req, res) => {
       });
 
       if (existingChat) {
+        await existingChat.populate({
+          path: "users",
+          match: { _id: { $ne: info.userID } },
+          select: "-password",
+        });
+
         return res.status(200).json({ chat: existingChat });
       }
+
       const newChat = await Chat.create(chatData);
+
+      await newChat
+        .populate({
+          path: "users",
+          match: { _id: { $ne: info.userID } },
+          select: "-password",
+        })
+        .execPopulate();
+
       res.status(200).json({ chat: newChat });
     } catch (e) {
       console.log(e);
@@ -104,7 +131,11 @@ router.get("/", async (req, res) => {
 
     try {
       const userChats = await Chat.find({ users: { $elemMatch: { $eq: info.userID } } })
-        .populate("users", "-password")
+        .populate({
+          path: "users",
+          match: { _id: { $ne: info.userID } },
+          select: "-password",
+        })
         .populate("chatname")
         .sort({ updatedAt: -1 });
       res.status(200).json({ chats: userChats });
