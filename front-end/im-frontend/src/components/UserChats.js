@@ -30,7 +30,7 @@ export default function UserChats() {
   function compareChatID(chat1, chat2) {
     return chat1?._id === chat2?._id;
   }
-  console.log(chats)
+  console.log(chats);
   return (
     <Box
       sx={{
@@ -58,7 +58,7 @@ export default function UserChats() {
           flexGrow: 1,
           overflowY: "auto", // Allow vertical scrolling
         }}>
-        <List sx={{ width: "100%" }}>
+        <List>
           {chats && chats.length > 0 ? (
             chats.map((chat) => (
               <ListItem
@@ -77,19 +77,33 @@ export default function UserChats() {
                 }}>
                 <ListItemAvatar>
                   {!chat.isGroupChat ? (
-                    <Avatar>{`${chat.users[0].first_name.charAt(0).toUpperCase()}`}</Avatar>
+                    <Avatar>{chat.users[0].first_name.charAt(0).toUpperCase()}</Avatar>
                   ) : (
                     <AvatarGroup max={2}>
                       {chat.users.map((user) => (
-                        <Avatar key={user._id}>{`${user.first_name.charAt(0).toUpperCase()}`}</Avatar>
+                        <Avatar key={user._id}>{user.first_name.charAt(0).toUpperCase()}</Avatar>
                       ))}
                     </AvatarGroup>
                   )}
                 </ListItemAvatar>
-                <ListItemText
-                  primary={!chat.isGroupChat ? `${chat.users[0].first_name} ${chat.users[0].last_name}` : chat.chatname}
-                  secondary={chat.latestMessage !== null ? chat.latestMessage : !chat.isGroupChat ? `${chat.users[0].username}: No latest message` : "No latest message"}
-                />
+
+                {!chat.isGroupChat ? (
+                  <Box sx={{ marginLeft: 2 }}>
+                    <Typography>{`${chat.users[0].first_name} ${chat.users[0].last_name}`}</Typography>
+                    {chat.latestMessage !== null ? (
+                      <Typography>
+                        {chat.users[0].username} {chat.latestMessage}
+                      </Typography>
+                    ) : (
+                      <Typography>{`${chat.users[0].username}: No latest message`}</Typography>
+                    )}
+                  </Box>
+                ) : (
+                  <Box sx={{ marginLeft: 2 }}>
+                    <Typography>{chat.chatname}</Typography>
+                    {chat.latestMessage !== null ? <Typography>{chat.latestMessage}</Typography> : <Typography>No latest message</Typography>}
+                  </Box>
+                )}
               </ListItem>
             ))
           ) : (
