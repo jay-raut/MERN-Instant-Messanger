@@ -1,36 +1,43 @@
 import React, { useEffect } from "react";
 import { ChatState } from "../Context/ChatProvider";
-import { Box, Typography, Button, Avatar, AvatarGroup, List, ListItem, ListItemAvatar, ListItemText } from "@mui/material";
-
+import { Box, Typography, Button, Avatar, AvatarGroup, List, ListItem, ListItemAvatar } from "@mui/material";
+import { useRef } from "react";
 export default function UserChats() {
   const { currentChat, setCurrentChat, chats, setChats } = ChatState();
-
-  async function getUserChats() {
-    try {
-      const response = await fetch("http://localhost:4000/api/chat/", {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-      });
-      if (response.ok) {
-        const response_chats = await response.json();
-        setChats(response_chats.chats); // Set chats state correctly
-      } else {
-        console.error("Failed to fetch chats:", response.statusText);
-      }
-    } catch (error) {
-      console.error("Error fetching chats:", error);
-    }
-  }
+  const itemRefs = useRef([]);
 
   useEffect(() => {
+    console.log("called change view");
+    if (currentChat && itemRefs.current[currentChat._id]) {
+      itemRefs.current[currentChat._id].scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+  }, [currentChat]);
+
+  useEffect(() => {
+    async function getUserChats() {
+      console.log("called get chats");
+      try {
+        const response = await fetch("http://localhost:4000/api/chat/", {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+        });
+        if (response.ok) {
+          const response_chats = await response.json();
+          setChats(response_chats.chats); // Set chats state correctly
+        } else {
+          console.error("Failed to fetch chats:", response.statusText);
+        }
+      } catch (error) {
+        console.error("Error fetching chats:", error);
+      }
+    }
     getUserChats();
-  }, []);
+  }, [setChats]);
 
   function compareChatID(chat1, chat2) {
     return chat1?._id === chat2?._id;
   }
-  console.log(chats);
   return (
     <Box
       sx={{
@@ -55,15 +62,17 @@ export default function UserChats() {
       </Box>
       <Box
         sx={{
-          flexGrow: 1,
           overflowY: "auto", // Allow vertical scrolling
         }}>
         <List>
           {chats && chats.length > 0 ? (
-            chats.map((chat) => (
+            chats.map((chat, index) => (
               <ListItem
                 key={chat._id}
                 onClick={() => setCurrentChat(chat)}
+                ref={(el) => {
+                  itemRefs.current[chat._id] = el;
+                }}
                 sx={{
                   display: "flex",
                   alignItems: "center",

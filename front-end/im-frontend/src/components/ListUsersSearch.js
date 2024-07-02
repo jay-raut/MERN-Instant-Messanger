@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Typography, Avatar, Stack, ButtonBase } from "@mui/material";
+import { Box, Typography, Avatar, ButtonBase } from "@mui/material";
 
 export default function ListUsersSearch({ user, handleClick }) {
   const { first_name, last_name, username } = user;

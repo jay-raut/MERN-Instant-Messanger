@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
 import { Drawer, IconButton } from "@mui/material";
 import { Typography, Box } from "@mui/material";
-import MenuIcon from "@mui/icons-material/Menu";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import { useState } from "react";
 import SearchIcon from "@mui/icons-material/Search";
@@ -18,7 +17,7 @@ export default function SearchSideDrawer() {
   const [loading, setLoading] = useState(false);
   const [snackBarVisible, setSnackBarVisible] = useState(false);
   const [snackBarMessage, setSnackBarMessage] = useState("");
-  const { user, setCurrentChat, currentChat } = ChatState();
+  const { setCurrentChat } = ChatState();
   const { chats, setChats } = ChatState();
   useEffect(() => {
     //useState is async ??
@@ -26,7 +25,7 @@ export default function SearchSideDrawer() {
       setSnackBarMessage("No results founds");
       setSnackBarVisible(true);
     }
-  }, [searchResult]);
+  }, [searchResult, hasSeached]);
   async function HandleSearchButton() {
     if (!searchWord) {
       setSnackBarVisible(true);

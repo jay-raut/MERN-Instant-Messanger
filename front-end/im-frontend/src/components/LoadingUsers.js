@@ -1,6 +1,6 @@
 import React from 'react';
 import Skeleton from '@mui/material/Skeleton';
-import { Stack, Typography } from '@mui/material';
+import { Stack } from '@mui/material';
 
 export default function LoadingUsers() {
     return (
