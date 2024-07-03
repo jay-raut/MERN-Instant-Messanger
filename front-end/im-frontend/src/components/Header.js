@@ -94,8 +94,8 @@ export default function Header() {
 
   return (
     (user && Object.keys(user).length > 0 && 
-    <Box sx={{ flexGrow: 1 }}>
-      <AppBar position="static">
+    <Box>
+      <AppBar  position="sticky" sx={{position:"sticky"}}>
         <Toolbar>
             <SearchSideDrawer></SearchSideDrawer>
           <Typography marginLeft={"15px"} variant="h6" noWrap component="div" sx={{ display: { xs: "none", sm: "block" }}}>

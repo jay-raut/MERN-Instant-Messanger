@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { ChatState } from "../Context/ChatProvider";
 import { Box, Typography, Button, Avatar, AvatarGroup, List, ListItem, ListItemAvatar } from "@mui/material";
 import { useRef } from "react";
-export default function UserChats() {
+export default function UserChats({setGroupChatDialogOpen}) {
   const { currentChat, setCurrentChat, chats, setChats } = ChatState();
   const itemRefs = useRef([]);
 
@@ -38,16 +38,16 @@ export default function UserChats() {
   function compareChatID(chat1, chat2) {
     return chat1?._id === chat2?._id;
   }
+
   return (
     <Box
       sx={{
         display: "flex",
         flexDirection: "column",
-        height: "100%", // Full viewport height
+        height: "100%", 
         width: "100%",
         boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.4)",
         borderRadius: "10px",
-        overflow: "hidden", // Ensure no overflow outside the box
       }}>
       <Box
         sx={{
@@ -56,13 +56,13 @@ export default function UserChats() {
           justifyContent: "space-between",
         }}>
         <Typography sx={{ fontSize: 25 }}>Messages</Typography>
-        <Button size="small" variant="contained">
+        <Button size="small" variant="contained" onClick={() => setGroupChatDialogOpen(true)}>
           New Group Chat
         </Button>
       </Box>
       <Box
         sx={{
-          overflowY: "auto", // Allow vertical scrolling
+          overflow: "auto", // Allow vertical scrolling
         }}>
         <List>
           {chats && chats.length > 0 ? (
