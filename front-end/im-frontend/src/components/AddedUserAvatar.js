@@ -2,7 +2,7 @@ import React from 'react';
 import { Box, Chip, Avatar } from '@mui/material';
 
 export default function AddedUserAvatar({ user, handleDelete }) {
-  const { first_name, last_name, username } = user;
+  const { first_name, username } = user;
   const initials = `${first_name.charAt(0)}`.toUpperCase();
 
   return (

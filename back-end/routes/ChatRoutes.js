@@ -107,8 +107,7 @@ router.post("/group", async (req, res) => {
           path: "users",
           match: { _id: { $ne: info.userID } },
           select: "-password",
-        })
-        .execPopulate();
+        });
 
       res.status(200).json({ chat: newChat });
     } catch (e) {

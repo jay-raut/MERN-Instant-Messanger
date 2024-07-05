@@ -11,6 +11,7 @@ import { List } from "@mui/material";
 import LoadingUsersDialog from "./LoadingUsersDialog";
 import AddedUserAvatar from "./AddedUserAvatar";
 import { Grid } from "@mui/material";
+import { ChatState } from "../Context/ChatProvider";
 
 export default function GroupChatDialog({ isDialogOpen, setDialogVisible }) {
   const [groupChatName, setGroupChatName] = useState("");
@@ -20,7 +21,7 @@ export default function GroupChatDialog({ isDialogOpen, setDialogVisible }) {
   const [snackBarMessage, setSnackBarMessage] = useState("");
   const [searchResult, setSearchResult] = useState([]);
   const [isCreateButtonDisabled, setIsCreateButtonDisabled] = useState(true);
-
+  const { currentChat, setCurrentChat, chats, setChats } = ChatState();
   async function handleSearch(event) {
     setSearchLoading(true);
     const response = await fetch(`http://localhost:4000/api/user/find-user?search=${encodeURIComponent(event)}`, {
@@ -51,9 +52,42 @@ export default function GroupChatDialog({ isDialogOpen, setDialogVisible }) {
     const updatedGroupChatUsers = groupChatUsers.filter((u) => u._id !== user._id);
     setGroupChatUsers(updatedGroupChatUsers);
   }
-  function createGroupChat(event) {
+
+  async function createGroupChat(event) {
     event.preventDefault();
-    console.log("created group chat");
+
+    try {
+      const response = await fetch("http://localhost:4000/api/chat/group", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          receiver: {
+            users: groupChatUsers,
+          },
+          chatName: groupChatName,
+        }),
+      });
+
+      if (response.ok) {
+        const newChat = await response.json();
+        const chatsContains = chats.find((c) => c._id === newChat.chat._id); //search for this chat
+        if (!chatsContains) {
+          //if this is a new chat with this user then append this new chat to the chats list
+          setChats([newChat.chat, ...chats]);
+          setCurrentChat(newChat.chat);
+        } else {
+          setCurrentChat(chatsContains);
+        }
+        setDialogVisible(false);
+      } else {
+        setSnackBarMessage("Could not create this chat try reloading");
+        setSnackBarVisible(true);
+      }
+    } catch (error) {
+        setSnackBarMessage("Could not create this chat try reloading");
+        setSnackBarVisible(true);
+    }
   }
 
   useEffect(() => {
@@ -72,8 +106,8 @@ export default function GroupChatDialog({ isDialogOpen, setDialogVisible }) {
         component: "form",
         onSubmit: createGroupChat,
         sx: {
-            borderRadius: '10px',
-          },
+          borderRadius: "10px",
+        },
       }}
       maxWidth="sm"
       fullWidth>
