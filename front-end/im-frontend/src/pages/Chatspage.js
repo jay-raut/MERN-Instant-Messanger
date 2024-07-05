@@ -4,11 +4,13 @@ import UserChats from "../components/UserChats";
 import ChatWindow from "../components/ChatWindow";
 import { useState } from "react";
 import GroupChatDialog from "../components/GroupChatDialog";
+import { ChatState } from "../Context/ChatProvider";
 
 export default function Chatpage() {
   const [groupChatDialogOpen, setGroupChatDialogOpen] = useState(false);
-  
+  const { user } = ChatState();
   return (
+    (user && Object.keys(user).length > 0 && 
     <>
       <Header />
       <GroupChatDialog isDialogOpen={groupChatDialogOpen} setDialogVisible={setGroupChatDialogOpen}></GroupChatDialog>
@@ -21,5 +23,6 @@ export default function Chatpage() {
         </Box>
       </Box>
     </>
+    )
   );
 }

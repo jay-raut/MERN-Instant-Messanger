@@ -12,7 +12,7 @@ export default function Homepage() {
   useEffect(() => {
     if (user && Object.keys(user).length > 0) {
       console.log('User logged in, redirecting to /chats');
-      navigate('/chats');
+      
     }
   }, [user, navigate]);
 

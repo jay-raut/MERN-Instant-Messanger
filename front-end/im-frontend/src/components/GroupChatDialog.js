@@ -1,23 +1,140 @@
-import { Dialog } from "@mui/material";
+import { Dialog, DialogContent } from "@mui/material";
 import DialogTitle from "@mui/material/DialogTitle";
-export default function GroupChatDialog({isDialogOpen, setDialogVisible}){
+import Box from "@mui/material/Box";
+import TextField from "@mui/material/TextField";
+import { useEffect, useState } from "react";
+import DialogActions from "@mui/material/DialogActions";
+import { Button } from "@mui/material";
+import SnackBar from "./Snackbar";
+import ListUsersDialog from "./ListUsersDialog";
+import { List } from "@mui/material";
+import LoadingUsersDialog from "./LoadingUsersDialog";
+import AddedUserAvatar from "./AddedUserAvatar";
+import { Grid } from "@mui/material";
 
+export default function GroupChatDialog({ isDialogOpen, setDialogVisible }) {
+  const [groupChatName, setGroupChatName] = useState("");
+  const [groupChatUsers, setGroupChatUsers] = useState([]);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [snackBarVisible, setSnackBarVisible] = useState(false);
+  const [snackBarMessage, setSnackBarMessage] = useState("");
+  const [searchResult, setSearchResult] = useState([]);
+  const [isCreateButtonDisabled, setIsCreateButtonDisabled] = useState(true);
 
-
-    function createGroupChat(){
-        console.log("created group chat")
+  async function handleSearch(event) {
+    setSearchLoading(true);
+    const response = await fetch(`http://localhost:4000/api/user/find-user?search=${encodeURIComponent(event)}`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+    });
+    if (response.ok) {
+      const users = await response.json();
+      setSearchResult(users.users);
+    } else {
+      setSnackBarMessage("Could not search for users. Try reloading");
+      setSnackBarVisible(true);
     }
-    return(
-        <Dialog
-        open={isDialogOpen}
-        onClose={() => setDialogVisible(false)}
-        PaperProps={{
-            component:'form',
-            onSubmit:{createGroupChat}
-        }}
-        >
-            <DialogTitle>Create Group Chat</DialogTitle>
-            
-        </Dialog>
-    )
+    setSearchLoading(false);
+  }
+
+  function addUser(user) {
+    if (groupChatUsers.find((u) => u._id === user._id)) {
+      setSnackBarMessage("This user is already in this group chat");
+      setSnackBarVisible(true);
+      return;
+    }
+    setGroupChatUsers([user, ...groupChatUsers]);
+  }
+
+  function removeUser(user) {
+    const updatedGroupChatUsers = groupChatUsers.filter((u) => u._id !== user._id);
+    setGroupChatUsers(updatedGroupChatUsers);
+  }
+  function createGroupChat(event) {
+    event.preventDefault();
+    console.log("created group chat");
+  }
+
+  useEffect(() => {
+    if (groupChatName && groupChatUsers.length >= 2) {
+      setIsCreateButtonDisabled(false);
+    } else {
+      setIsCreateButtonDisabled(true);
+    }
+  }, [groupChatName, groupChatUsers]);
+
+  return (
+    <Dialog
+      open={isDialogOpen}
+      onClose={() => setDialogVisible(false)}
+      PaperProps={{
+        component: "form",
+        onSubmit: createGroupChat,
+        sx: {
+            borderRadius: '10px',
+          },
+      }}
+      maxWidth="sm"
+      fullWidth>
+      <DialogTitle>Create Group Chat</DialogTitle>
+      <DialogContent overflowY="auto">
+        <Box margin={1}>
+          <TextField
+            required
+            id="outlined-required"
+            label="Enter chat name"
+            autoComplete="off"
+            fullWidth
+            value={groupChatName}
+            onChange={(e) => {
+              setGroupChatName(e.target.value);
+            }}
+          />
+        </Box>
+        <Box margin={1}>
+          <TextField
+            id="outlined-required-users"
+            label="Enter users to add using their name or username"
+            fullWidth
+            autoComplete="off"
+            onChange={(e) => {
+              handleSearch(e.target.value);
+            }}
+          />
+          <Box>
+            <Grid container spacing={1}>
+              {groupChatUsers.map((user, index) => (
+                <Grid item key={user._id}>
+                  <AddedUserAvatar index={index} user={user} handleDelete={removeUser} />
+                </Grid>
+              ))}
+            </Grid>
+          </Box>
+          {searchLoading ? (
+            <>
+              <Box>
+                <LoadingUsersDialog></LoadingUsersDialog>
+              </Box>
+            </>
+          ) : (
+            <Box>
+              <List>
+                {searchResult?.slice(0, 4).map((user, index) => (
+                  <ListUsersDialog key={index} user={user} handleClick={() => addUser(user)} />
+                ))}
+              </List>
+            </Box>
+          )}
+        </Box>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={() => setDialogVisible(false)}>Cancel</Button>
+        <Button variant="contained" type="submit" disabled={isCreateButtonDisabled}>
+          Create Group Chat
+        </Button>
+      </DialogActions>
+      <SnackBar open={snackBarVisible} setOpen={setSnackBarVisible} message={snackBarMessage}></SnackBar>
+    </Dialog>
+  );
 }

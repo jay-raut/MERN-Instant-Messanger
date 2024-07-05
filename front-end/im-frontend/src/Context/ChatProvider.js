@@ -16,6 +16,7 @@ const ChatProvider = ({ children }) => {
       if (response.ok) {
         const data = await response.json();
         setUser(data);
+        navigate('/chats');
       } else {
         navigate("/");
       }

@@ -1,11 +1,11 @@
 import React from 'react';
 import { Box, TextField, Button } from '@mui/material';
 import { useState } from 'react';
-
+import { useNavigate } from "react-router-dom";
 export default function LoginForm() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-
+  const navigate = useNavigate();
   const handleUserName = (event) => {
     setUsername(event.target.value);
   };
@@ -24,7 +24,7 @@ export default function LoginForm() {
     });
     if (response.ok){
       console.log("logged in");
-      window.location.reload();
+      navigate('/chats');
     }else{
       console.log('could not login');
     }

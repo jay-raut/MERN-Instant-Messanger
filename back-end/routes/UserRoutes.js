@@ -87,13 +87,15 @@ router.get("/find-user", async (req, res) => {
           $or: [{ first_name: { $regex: searchQuery, $options: "i" } }, { last_name: { $regex: searchQuery, $options: "i" } }, { username: { $regex: searchQuery, $options: "i" } }],
         };
         query._id = {$ne: info.userID};
+      }else{
+        return res.status(200).json({users: []});
       }
 
       const users = await User.find(query).select("-password").select("-createdAt").select("-updatedAt").select("-__v");
       res.status(200).json({ users });
     } catch (error) {
       console.error("Error finding users:", error);
-      res.status(500).json({ error: "An unexpected error occurred." });
+      res.status(200).json({users: []});
     }
   });
 });
