@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { ChatState } from "../Context/ChatProvider";
+import { ChatState } from "../../../Context/ChatProvider";
 import { Box, Typography, Button, Avatar, AvatarGroup, List, ListItem, ListItemAvatar } from "@mui/material";
 import { useRef } from "react";
 export default function UserChats({setGroupChatDialogOpen}) {

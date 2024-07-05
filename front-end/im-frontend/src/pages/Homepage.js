@@ -1,7 +1,7 @@
 import React, {useState, useEffect } from "react";
 import { Container, Box, Typography, Tabs, Tab } from "@mui/material";
-import LoginForm from "../components/LoginForm";
-import RegisterForm from "../components/RegisterForm";
+import LoginForm from "../components/ChatPageComponents/Forms/LoginForm";
+import RegisterForm from "../components/ChatPageComponents/Forms/RegisterForm";
 import { useNavigate } from "react-router-dom";
 import { ChatState } from "../Context/ChatProvider";
 

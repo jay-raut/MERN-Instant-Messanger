@@ -5,13 +5,13 @@ import TextField from "@mui/material/TextField";
 import { useEffect, useState } from "react";
 import DialogActions from "@mui/material/DialogActions";
 import { Button } from "@mui/material";
-import SnackBar from "./Snackbar";
+import SnackBar from "../Utils/Snackbar";
 import ListUsersDialog from "./ListUsersDialog";
 import { List } from "@mui/material";
 import LoadingUsersDialog from "./LoadingUsersDialog";
 import AddedUserAvatar from "./AddedUserAvatar";
 import { Grid } from "@mui/material";
-import { ChatState } from "../Context/ChatProvider";
+import { ChatState } from "../../../Context/ChatProvider";
 
 export default function GroupChatDialog({ isDialogOpen, setDialogVisible }) {
   const [groupChatName, setGroupChatName] = useState("");

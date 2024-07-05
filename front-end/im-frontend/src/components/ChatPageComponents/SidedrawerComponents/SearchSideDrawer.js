@@ -5,10 +5,10 @@ import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import { useState } from "react";
 import SearchIcon from "@mui/icons-material/Search";
 import InputBase from "@mui/material/InputBase";
-import SnackBar from "./Snackbar";
+import SnackBar from "../Utils/Snackbar";
 import LoadingUsers from "./LoadingUsers";
 import ListUsersSearch from "./ListUsersSearch";
-import { ChatState } from "../Context/ChatProvider";
+import { ChatState } from "../../../Context/ChatProvider";
 export default function SearchSideDrawer() {
   const [isDrawerOpen, setDrawerOpen] = useState(false);
   const [hasSeached, setHasSearched] = useState(false);

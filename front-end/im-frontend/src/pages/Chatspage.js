@@ -1,9 +1,9 @@
-import Header from "../components/Header";
+import Header from "../components/ChatPageComponents/Header";
 import { Box } from "@mui/material";
-import UserChats from "../components/UserChats";
-import ChatWindow from "../components/ChatWindow";
+import UserChats from "../components/ChatPageComponents/ListChatsComponent/UserChats";
+import ChatWindow from "../components/ChatPageComponents/ChatWindowComponent/ChatWindow";
 import { useState } from "react";
-import GroupChatDialog from "../components/GroupChatDialog";
+import GroupChatDialog from "../components/ChatPageComponents/DialogComponents/GroupChatDialog";
 import { ChatState } from "../Context/ChatProvider";
 
 export default function Chatpage() {
