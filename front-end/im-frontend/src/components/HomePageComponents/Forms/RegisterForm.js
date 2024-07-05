@@ -1,7 +1,7 @@
 import React from "react";
 import { useState } from "react";
 import { Box, TextField, Button } from "@mui/material";
-import SnackBar from "../Utils/Snackbar";
+import SnackBar from "../../ChatPageComponents/Utils/Snackbar";
 
 export default function RegisterForm() {
   const [firstname, setFirstName] = useState("");
