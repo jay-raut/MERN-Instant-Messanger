@@ -168,11 +168,6 @@ router.post("/rename", async (req, res) => {
         return res.status(403).json({ message: "you are not authorized to rename this chat" });
       }
       chat.chatname = newName;
-      chat.populate({
-        path: "users",
-        match: { _id: { $ne: info.userID } },
-        select: "-password",
-      });
       await chat.save();
 
       return res.status(200).json({ message: "Chat renamed successfully", chat });
@@ -211,11 +206,6 @@ router.post("/adduser", async (req, res) => {
       if (chat.users.length > 2) {
         chat.isGroupChat = true;
       }
-      chat.populate({
-        path: "users",
-        match: { _id: { $ne: info.userID } },
-        select: "-password",
-      });
       await chat.save();
       return res.status(200).json({ message: "User added successfully", chat });
     } catch (e) {
