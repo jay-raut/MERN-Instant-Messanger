@@ -5,7 +5,6 @@ import TextField from "@mui/material/TextField";
 import { useEffect, useState } from "react";
 import DialogActions from "@mui/material/DialogActions";
 import { Button } from "@mui/material";
-import SnackBar from "../Utils/Snackbar";
 import ListUsersDialog from "./ListUsersDialog";
 import { List } from "@mui/material";
 import LoadingUsersDialog from "./LoadingUsersDialog";
@@ -13,15 +12,15 @@ import AddedUserAvatar from "./AddedUserAvatar";
 import { Grid } from "@mui/material";
 import { ChatState } from "../../../Context/ChatProvider";
 
-export default function GroupChatDialog({ isDialogOpen, setDialogVisible }) {
+export default function GroupChatDialog({ isDialogOpen, setDialogVisible, setSnackBarVisible, setSnackBarMessage }) {
   const [groupChatName, setGroupChatName] = useState("");
   const [groupChatUsers, setGroupChatUsers] = useState([]);
   const [searchLoading, setSearchLoading] = useState(false);
-  const [snackBarVisible, setSnackBarVisible] = useState(false);
-  const [snackBarMessage, setSnackBarMessage] = useState("");
   const [searchResult, setSearchResult] = useState([]);
   const [isCreateButtonDisabled, setIsCreateButtonDisabled] = useState(true);
-  const { currentChat, setCurrentChat, chats, setChats } = ChatState();
+  const { setCurrentChat, chats, setChats } = ChatState();
+
+  
   async function handleSearch(event) {
     setSearchLoading(true);
     const response = await fetch(`http://localhost:4000/api/user/find-user?search=${encodeURIComponent(event)}`, {
@@ -80,13 +79,15 @@ export default function GroupChatDialog({ isDialogOpen, setDialogVisible }) {
           setCurrentChat(chatsContains);
         }
         setDialogVisible(false);
+        setSnackBarMessage(`Created group chat ${groupChatName}`);
+        setSnackBarVisible(true);
       } else {
         setSnackBarMessage("Could not create this chat try reloading");
         setSnackBarVisible(true);
       }
     } catch (error) {
-        setSnackBarMessage("Could not create this chat try reloading");
-        setSnackBarVisible(true);
+      setSnackBarMessage("Could not create this chat try reloading");
+      setSnackBarVisible(true);
     }
   }
 
@@ -168,7 +169,7 @@ export default function GroupChatDialog({ isDialogOpen, setDialogVisible }) {
           Create Group Chat
         </Button>
       </DialogActions>
-      <SnackBar open={snackBarVisible} setOpen={setSnackBarVisible} message={snackBarMessage}></SnackBar>
+      
     </Dialog>
   );
 }
