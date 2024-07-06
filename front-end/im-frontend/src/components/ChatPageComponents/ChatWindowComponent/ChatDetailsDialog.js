@@ -29,10 +29,11 @@ export default function ChatDetailsDialog({ isDialogOpen, setDialogVisible, setS
     if (response.ok) {
       const res = await response.json();
       console.log(res);
-      const updated_chats = chats.filter((c) => c._id !== res.chat._id);
+      currentChat.chatname = res.chat.chatname;
+      const updated_chats = chats.filter((c) => c._id !== currentChat._id);
 
-      setChats([res.chat, ...updated_chats]);
-      setCurrentChat(res.chat);
+      setChats([currentChat, ...updated_chats]);
+      setCurrentChat(currentChat);
     } else {
       setSnackBarMessage("Something went wrong try reloading");
       setSnackBarVisible(true);
@@ -72,10 +73,12 @@ export default function ChatDetailsDialog({ isDialogOpen, setDialogVisible, setS
     if (response.ok) {
       const res = await response.json();
       console.log(res);
-      const updated_chats = chats.filter((c) => c._id !== res.chat._id);
-
-      setChats([res.chat, ...updated_chats]);
-      setCurrentChat(res.chat);
+        currentChat.isGroupChat = res.chat.isGroupChat;
+        currentChat.users = [user, ... currentChat.users];
+      const updated_chats = chats.filter((c) => c._id !== currentChat._id);
+        
+      setChats([currentChat, ...updated_chats]);
+      setCurrentChat(currentChat);
     } else {
       setSnackBarMessage("Something went wrong try reloading");
       setSnackBarVisible(true);
