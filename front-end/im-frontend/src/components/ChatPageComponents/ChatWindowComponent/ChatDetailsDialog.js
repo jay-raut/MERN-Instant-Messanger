@@ -57,7 +57,7 @@ export default function ChatDetailsDialog({ isDialogOpen, setDialogVisible, setS
     setSearchLoading(false);
   }
 
-  async function addUser(user) {
+  async function addUser(user) {//TODO optimise adding user instead of populate in backend just populate here
     if (currentChat.users.find((u) => u._id === user._id)) {
       setSnackBarMessage("User is already in the group chat");
       setSnackBarVisible(true);
@@ -128,9 +128,7 @@ export default function ChatDetailsDialog({ isDialogOpen, setDialogVisible, setS
         />
         {searchLoading ? (
           <>
-            <Box>
-              <LoadingUsersDialog></LoadingUsersDialog>
-            </Box>
+            
           </>
         ) : (
           <Box>
