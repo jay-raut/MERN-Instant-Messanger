@@ -13,7 +13,6 @@ mongoose.connect(process.env.mongo_db, {
   tlsCertificateKeyFile: process.env.mongo_cert,
 });
 
-
 app.use(express.json());
 app.use(cookieparser());
 app.use(

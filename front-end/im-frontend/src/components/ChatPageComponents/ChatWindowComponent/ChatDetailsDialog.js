@@ -59,12 +59,40 @@ export default function ChatDetailsDialog({ isDialogOpen, setDialogVisible, setS
     setSearchLoading(false);
   }
 
+  function checkIfSimilarChatExists(user) {
+    let returnCheck = false;
+
+    chats.forEach((c) => {
+      // Check if both chats have the same number of users
+      if (c.users.length === currentChat.users.length + 1) {
+        // Convert both user arrays to sets of user IDs
+        const currentChatUserIds = new Set(currentChat.users.map((u) => u._id));
+        const chatUserIds = new Set(c.users.map((u) => u._id));
+
+        // Check if every user ID in the current chat is also in the other chat
+        const hasSameUsers = Array.from(currentChatUserIds).every((id) => chatUserIds.has(id));
+
+        if (hasSameUsers && c.users.some((u) => u._id === user._id)) {
+          returnCheck = true;
+        }
+      }
+    });
+    return returnCheck;
+  }
+
   async function addUser(user) {
     if (currentChat.users.find((u) => u._id === user._id)) {
       setSnackBarMessage("User is already in the group chat");
       setSnackBarVisible(true);
       return;
     }
+
+    if (checkIfSimilarChatExists(user)) {
+      setSnackBarMessage("A chat like this already exists. Add a different user");
+      setSnackBarVisible(true);
+      return;
+    }
+
     try {
     } catch (e) {
       console.log(e);
@@ -79,6 +107,7 @@ export default function ChatDetailsDialog({ isDialogOpen, setDialogVisible, setS
       const res = await response.json();
       console.log(res);
       currentChat.isGroupChat = res.chat.isGroupChat;
+      currentChat.chatname = res.chat.chatname;
       currentChat.users = [user, ...currentChat.users];
       const updated_chats = chats.filter((c) => c._id !== currentChat._id);
 
