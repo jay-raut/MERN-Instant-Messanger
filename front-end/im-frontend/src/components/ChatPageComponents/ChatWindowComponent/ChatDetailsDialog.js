@@ -9,8 +9,9 @@ import SaveIcon from "@mui/icons-material/Save";
 import ChatMemberAvatar from "./ChatMemberAvatar";
 import { ChatState } from "../../../Context/ChatProvider";
 import LoadingUsersDialog from "../DialogComponents/LoadingUsersDialog";
+import LogoutIcon from "@mui/icons-material/Logout";
 import ListUsersDialog from "../DialogComponents/ListUsersDialog";
-import { List } from "@mui/material";
+import { Button, List, Typography } from "@mui/material";
 export default function ChatDetailsDialog({ isDialogOpen, setDialogVisible, setSnackBarMessage, setSnackBarVisible }) {
   const { currentChat, setCurrentChat, chats, setChats } = ChatState();
   const [newChatName, setNewChatName] = useState("");
@@ -59,11 +60,14 @@ export default function ChatDetailsDialog({ isDialogOpen, setDialogVisible, setS
   }
 
   async function addUser(user) {
-    
     if (currentChat.users.find((u) => u._id === user._id)) {
       setSnackBarMessage("User is already in the group chat");
       setSnackBarVisible(true);
       return;
+    }
+    try {
+    } catch (e) {
+      console.log(e);
     }
     const response = await fetch("http://localhost:4000/api/chat/adduser", {
       method: "POST",
@@ -80,6 +84,24 @@ export default function ChatDetailsDialog({ isDialogOpen, setDialogVisible, setS
 
       setChats([currentChat, ...updated_chats]);
       setCurrentChat(currentChat);
+    } else {
+      setSnackBarMessage("Something went wrong try reloading");
+      setSnackBarVisible(true);
+    }
+  }
+
+  async function leaveGroup() {
+    const response = await fetch("http://localhost:4000/api/chat/leave", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ groupChatID: currentChat._id }),
+    });
+    if (response.ok) {
+      const updated_chats = chats.filter((c) => c._id !== currentChat._id);
+      setChats(updated_chats);
+      setCurrentChat(null);
+      setDialogVisible(false);
     } else {
       setSnackBarMessage("Something went wrong try reloading");
       setSnackBarVisible(true);
@@ -142,6 +164,16 @@ export default function ChatDetailsDialog({ isDialogOpen, setDialogVisible, setS
           </Box>
         )}
       </Box>
+      {currentChat?.isGroupChat ? (
+        <Box display="flex" justifyContent="flex-end" p={3}>
+          <Button onClick={leaveGroup} variant="contained" color="primary">
+            <Typography marginRight={1}>Leave Group</Typography>
+            <LogoutIcon />
+          </Button>
+        </Box>
+      ) : (
+        <></>
+      )}
     </Dialog>
   );
 }
