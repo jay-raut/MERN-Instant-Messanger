@@ -60,6 +60,7 @@ router.post("/login", async (req, res) => {
     res.cookie("token", token).json({
       first_name: userDoc.first_name,
       last_name: userDoc.last_name,
+      _id:userDoc._id
     });
   } catch (e) {
     console.error(e);

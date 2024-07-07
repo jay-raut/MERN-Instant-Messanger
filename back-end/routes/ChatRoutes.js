@@ -45,7 +45,7 @@ router.post("/", async (req, res) => {
         match: { _id: { $ne: info.userID } },
         select: "-password",
       });
-  
+
       res.status(200).json({ chat: newChat });
     } catch (e) {
       console.log(e);
@@ -102,12 +102,11 @@ router.post("/group", async (req, res) => {
 
       const newChat = await Chat.create(chatData);
 
-      await newChat
-        .populate({
-          path: "users",
-          match: { _id: { $ne: info.userID } },
-          select: "-password",
-        });
+      await newChat.populate({
+        path: "users",
+        match: { _id: { $ne: info.userID } },
+        select: "-password",
+      });
 
       res.status(200).json({ chat: newChat });
     } catch (e) {
@@ -164,8 +163,8 @@ router.post("/rename", async (req, res) => {
       if (!chat) {
         return res.status(404).json({ message: "Chat not found" });
       }
-      if (!chat.users.includes(info.userID)) {
-        return res.status(403).json({ message: "you are not authorized to rename this chat" });
+      if (!chat.users.some((u) => u._id.toString() === info.userID)) {
+        return res.status(403).json({ message: "Not authorized to rename this chat" });
       }
       chat.chatname = newName;
       await chat.save();
@@ -196,11 +195,11 @@ router.post("/adduser", async (req, res) => {
       if (!chat) {
         return res.status(404).json({ message: "Chat not found" });
       }
-      if (!chat.users.includes(info.userID)) {
-        return res.status(403).json({ message: "you are not authorized to rename this chat" });
+      if (!chat.users.some((u) => u._id.toString() === info.userID)) {
+        return res.status(403).json({ message: "Not authorized to add users to this chat" });
       }
-      if (chat.users.includes(newUserID)) {
-        return res.status(400).json({ message: "User is already in the chat" });
+      if (chat.users.some((u) => u._id.toString === (info.userID))) {
+        return res.status(400).json({ message: "User is already in this chat" });
       }
       chat.users.push(newUserID);
       if (chat.users.length > 2) {
@@ -208,6 +207,43 @@ router.post("/adduser", async (req, res) => {
       }
       await chat.save();
       return res.status(200).json({ message: "User added successfully", chat });
+    } catch (e) {
+      console.log(e);
+      res.status(500);
+    }
+  });
+});
+
+router.post("/leave", async (req, res) => {
+  const { token } = req.cookies;
+  if (!token) {
+    return res.status(403).json({ message: "No token provided" });
+  }
+  jwt.verify(token, secret, {}, async (err, info) => {
+    if (err) {
+      return res.status(403).json({ message: "Invalid token" });
+    }
+    const { groupChatID } = req.body;
+    if (!groupChatID) {
+      return res.status(400).json({ message: "missing group chat id" });
+    }
+    try {
+      const chat = await Chat.findById(groupChatID);
+      if (!chat) {
+        return res.status(404).json({ message: "Chat not found" });
+      }
+      
+      if (!chat.users.some((u) => u._id.toString() === info.userID)) {
+        return res.status(403).json({ message: "User is not in this chat" });
+      }
+     
+      chat.users = chat.users.filter((u) => u._id.toString() !== info.userID);
+      if (chat.users.length == 2){
+        chat.isGroupChat = false;
+      }
+      
+      await chat.save();
+      return res.status(200).json({ message: "User left group successfully", chat });
     } catch (e) {
       console.log(e);
       res.status(500);

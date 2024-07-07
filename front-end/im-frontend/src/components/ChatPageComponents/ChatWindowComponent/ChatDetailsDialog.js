@@ -19,7 +19,7 @@ export default function ChatDetailsDialog({ isDialogOpen, setDialogVisible, setS
 
   async function handleChangeChatName(event) {
     event.preventDefault();
-    
+
     const response = await fetch("http://localhost:4000/api/chat/rename", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -58,7 +58,8 @@ export default function ChatDetailsDialog({ isDialogOpen, setDialogVisible, setS
     setSearchLoading(false);
   }
 
-  async function addUser(user) {//TODO optimise adding user instead of populate in backend just populate here
+  async function addUser(user) {
+    
     if (currentChat.users.find((u) => u._id === user._id)) {
       setSnackBarMessage("User is already in the group chat");
       setSnackBarVisible(true);
@@ -73,10 +74,10 @@ export default function ChatDetailsDialog({ isDialogOpen, setDialogVisible, setS
     if (response.ok) {
       const res = await response.json();
       console.log(res);
-        currentChat.isGroupChat = res.chat.isGroupChat;
-        currentChat.users = [user, ... currentChat.users];
+      currentChat.isGroupChat = res.chat.isGroupChat;
+      currentChat.users = [user, ...currentChat.users];
       const updated_chats = chats.filter((c) => c._id !== currentChat._id);
-        
+
       setChats([currentChat, ...updated_chats]);
       setCurrentChat(currentChat);
     } else {
@@ -130,9 +131,7 @@ export default function ChatDetailsDialog({ isDialogOpen, setDialogVisible, setS
           }}
         />
         {searchLoading ? (
-          <>
-            
-          </>
+          <></>
         ) : (
           <Box>
             <List>
