@@ -6,6 +6,8 @@ const ChatContext = createContext();
 const ChatProvider = ({ children }) => {
   const [user, setUser] = useState({});
   const [currentChat, setCurrentChat] = useState();
+  const [currentChatMessages, setCurrentChatMessages] = useState([]);
+  const [messageLoading, setMessageLoading] = useState(false);
   const [chats, setChats] = useState([]);
   const navigate = useNavigate();
   useEffect(() => {
@@ -24,7 +26,34 @@ const ChatProvider = ({ children }) => {
     getProfile();
   }, [navigate]);
 
-  return <ChatContext.Provider value={{ user, setUser, currentChat, setCurrentChat, chats, setChats }}>{children}</ChatContext.Provider>;
+
+  useEffect(() => {
+    async function getMessages(){
+      if (!currentChat){
+        return;
+      }
+      setMessageLoading(true);
+      try{
+        const response = await fetch(`http://localhost:4000/api/message?chatID=${currentChat._id}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        });
+        if (response.ok){
+          const data = await response.json()
+          setCurrentChatMessages(data.messages);
+        }
+      }catch (e){
+        console.log(e);
+      }
+      setMessageLoading(false);
+    }
+    getMessages();
+  }, [currentChat])
+
+  return <ChatContext.Provider value={{ user, setUser, currentChat, setCurrentChat, chats, setChats, currentChatMessages, setCurrentChatMessages }}>{children}</ChatContext.Provider>;
 };
 
 export const ChatState = () => {

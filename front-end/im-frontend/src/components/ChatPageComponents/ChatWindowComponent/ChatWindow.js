@@ -5,16 +5,26 @@ import { Button } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
 import { useState } from "react";
 import ChatDetailsDialog from "./ChatDetailsDialog";
-export default function ChatWindow({setSnackBarMessage, setSnackBarVisible}) {
-  const { currentChat } = ChatState();
+import MessageComponent from "./MessageComponent";
+export default function ChatWindow({ setSnackBarMessage, setSnackBarVisible }) {
+  const { currentChat, currentChatMessages, user} = ChatState();
   const [message, setMessage] = useState("");
   const [chatDetailsDialogOpen, setChatDetailsDialogOpen] = useState(false);
-
-  function sendMessage(event) {
-    event.preventDefault();
-    console.log(message);
+  async function sendMessage(event) {
+    event.preventDefault(); 
+    const response = await fetch("http://localhost:4000/api/message/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body:JSON.stringify({groupChatID: currentChat._id, message:message})
+    });
+    if (!response.ok){
+      setSnackBarMessage("Could not send message. Try reloading");
+      setSnackBarVisible(true);
+    }
     setMessage("");
   }
+  
   return (
     <Box sx={{ boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.4)", p: 2, width: "100%", borderRadius: "10px", height: "100%" }}>
       {currentChat ? (
@@ -51,7 +61,11 @@ export default function ChatWindow({setSnackBarMessage, setSnackBarVisible}) {
               borderRadius: "10px",
             }}>
             {/* Render chat messages here */}
-            <Box sx={{ flex: 1, padding: 2, overflowY: "auto" }}></Box>
+            <Box sx={{ flex: 1, padding: 2, overflowY: "auto" }}>
+              {currentChatMessages.map((message, index) => (
+                  <MessageComponent key={index} message={message} isCurrentUser={message.sender._id === user.userID}></MessageComponent>
+              ))}
+            </Box>
 
             {/* Input Area */}
             <Box component="form" onSubmit={(event) => sendMessage(event)} sx={{ width: "100%", display: "flex", alignItems: "center", paddingTop: 2, borderTop: "1px solid #ccc" }}>
@@ -80,7 +94,11 @@ export default function ChatWindow({setSnackBarMessage, setSnackBarVisible}) {
           <Typography sx={{ fontSize: 25 }}>No chat selected. Select a chat to start</Typography>
         </Box>
       )}
-      <ChatDetailsDialog isDialogOpen={chatDetailsDialogOpen} setDialogVisible={setChatDetailsDialogOpen} setSnackBarMessage={setSnackBarMessage} setSnackBarVisible={setSnackBarVisible}></ChatDetailsDialog>
+      <ChatDetailsDialog
+        isDialogOpen={chatDetailsDialogOpen}
+        setDialogVisible={setChatDetailsDialogOpen}
+        setSnackBarMessage={setSnackBarMessage}
+        setSnackBarVisible={setSnackBarVisible}></ChatDetailsDialog>
     </Box>
   );
 }

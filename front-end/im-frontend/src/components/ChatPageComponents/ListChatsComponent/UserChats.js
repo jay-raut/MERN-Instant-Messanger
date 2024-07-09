@@ -1,18 +1,16 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { ChatState } from "../../../Context/ChatProvider";
 import { Box, Typography, Button, Avatar, AvatarGroup, List, ListItem, ListItemAvatar } from "@mui/material";
 import { useRef } from "react";
-export default function UserChats({setGroupChatDialogOpen}) {
+export default function UserChats({ setGroupChatDialogOpen }) {
   const { currentChat, setCurrentChat, chats, setChats } = ChatState();
   const itemRefs = useRef([]);
-
   useEffect(() => {
     console.log("called change view");
     if (currentChat && itemRefs.current[currentChat._id]) {
       itemRefs.current[currentChat._id].scrollIntoView({ behavior: "smooth", block: "nearest" });
     }
   }, [currentChat]);
-
   useEffect(() => {
     async function getUserChats() {
       console.log("called get chats");
@@ -24,7 +22,7 @@ export default function UserChats({setGroupChatDialogOpen}) {
         });
         if (response.ok) {
           const response_chats = await response.json();
-          setChats(response_chats.chats); // Set chats state correctly
+          setChats(response_chats.chats);
         } else {
           console.error("Failed to fetch chats:", response.statusText);
         }
@@ -44,7 +42,7 @@ export default function UserChats({setGroupChatDialogOpen}) {
       sx={{
         display: "flex",
         flexDirection: "column",
-        height: "100%", 
+        height: "100%",
         width: "100%",
         boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.4)",
         borderRadius: "10px",
@@ -99,9 +97,9 @@ export default function UserChats({setGroupChatDialogOpen}) {
                 {!chat.isGroupChat ? (
                   <Box sx={{ marginLeft: 2 }}>
                     <Typography>{`${chat.users[0].first_name} ${chat.users[0].last_name}`}</Typography>
-                    {chat.latestMessage !== null ? (
+                    {chat.latestMessage ? (
                       <Typography>
-                        {chat.users[0].username} {chat.latestMessage}
+                        {chat.users[0].username}:{chat.latestMessage.content}
                       </Typography>
                     ) : (
                       <Typography>{`${chat.users[0].username}: No latest message`}</Typography>
@@ -110,7 +108,7 @@ export default function UserChats({setGroupChatDialogOpen}) {
                 ) : (
                   <Box sx={{ marginLeft: 2 }}>
                     <Typography>{chat.chatname}</Typography>
-                    {chat.latestMessage !== null ? <Typography>{chat.latestMessage}</Typography> : <Typography>No latest message</Typography>}
+                    {chat.latestMessage ? <Typography>{chat.latestMessage.content}</Typography> : <Typography>No latest message</Typography>}
                   </Box>
                 )}
               </ListItem>

@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const jwt = require("jsonwebtoken");
 const Chat = require("../mongo_models/chat");
+const { model } = require("mongoose");
 const secret = process.env.secret_token_key;
 
 router.post("/", async (req, res) => {
@@ -32,21 +33,25 @@ router.post("/", async (req, res) => {
       });
 
       if (existingChat) {
-        await existingChat.populate({
+        const populatedChat = await Chat.findOne({ _id: existingChat._id })
+          .populate({
+            path: "users",
+            match: { _id: { $ne: info.userID } },
+            select: "-password",
+          })
+          .populate({ path: "latestMessage", model: "Message" });
+
+        return res.status(200).json({ chat: populatedChat });
+      }
+      const newChat = await Chat.create(chatData);
+      const populatedNewChat = await Chat.findOne({ _id: newChat._id })
+        .populate({
           path: "users",
           match: { _id: { $ne: info.userID } },
           select: "-password",
-        });
-        return res.status(200).json({ chat: existingChat });
-      }
-      const newChat = await Chat.create(chatData);
-      await newChat.populate({
-        path: "users",
-        match: { _id: { $ne: info.userID } },
-        select: "-password",
-      });
-
-      res.status(200).json({ chat: newChat });
+        })
+        .populate({ path: "latestMessage", model: "Message" });
+      res.status(200).json({ chat: populatedNewChat });
     } catch (e) {
       console.log(e);
       res.status(500);
@@ -91,25 +96,25 @@ router.post("/group", async (req, res) => {
       });
 
       if (existingChat) {
-        
-        await existingChat.populate({
+        const populatedChat = await Chat.findOne({ _id: existingChat._id })
+          .populate({
+            path: "users",
+            match: { _id: { $ne: info.userID } },
+            select: "-password",
+          })
+          .populate({ path: "latestMessage", model: "Message" });
+
+        return res.status(200).json({ chat: populatedChat });
+      }
+      const newChat = await Chat.create(chatData);
+      const populatedNewChat = await Chat.findOne({ _id: newChat._id })
+        .populate({
           path: "users",
           match: { _id: { $ne: info.userID } },
           select: "-password",
-        });
-
-        return res.status(200).json({ chat: existingChat });
-      }
-
-      const newChat = await Chat.create(chatData);
-
-      await newChat.populate({
-        path: "users",
-        match: { _id: { $ne: info.userID } },
-        select: "-password",
-      });
-
-      res.status(200).json({ chat: newChat });
+        })
+        .populate({ path: "latestMessage", model: "Message" });
+      res.status(200).json({ chat: populatedNewChat });
     } catch (e) {
       console.log(e);
       res.status(500);
@@ -135,7 +140,7 @@ router.get("/", async (req, res) => {
           match: { _id: { $ne: info.userID } },
           select: "-password",
         })
-        .populate("chatname")
+        .populate({ path: "latestMessage", model: "Message" })
         .sort({ updatedAt: -1 });
       res.status(200).json({ chats: userChats });
     } catch (e) {
@@ -199,7 +204,7 @@ router.post("/adduser", async (req, res) => {
       if (!chat.users.some((u) => u._id.toString() === info.userID)) {
         return res.status(403).json({ message: "Not authorized to add users to this chat" });
       }
-      if (chat.users.some((u) => u._id.toString === (info.userID))) {
+      if (chat.users.some((u) => u._id.toString === info.userID)) {
         return res.status(400).json({ message: "User is already in this chat" });
       }
       chat.users.push(newUserID);
@@ -234,16 +239,16 @@ router.post("/leave", async (req, res) => {
       if (!chat) {
         return res.status(404).json({ message: "Chat not found" });
       }
-      
+
       if (!chat.users.some((u) => u._id.toString() === info.userID)) {
         return res.status(403).json({ message: "User is not in this chat" });
       }
-     
+
       chat.users = chat.users.filter((u) => u._id.toString() !== info.userID);
-      if (chat.users.length == 2){
+      if (chat.users.length == 2) {
         chat.isGroupChat = false;
       }
-      
+
       await chat.save();
       return res.status(200).json({ message: "User left group successfully", chat });
     } catch (e) {

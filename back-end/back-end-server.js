@@ -5,6 +5,7 @@ const app = express();
 const cookieparser = require("cookie-parser");
 const UserRoutes = require("./routes/UserRoutes");
 const ChatRoutes = require("./routes/ChatRoutes");
+const MessageRoutes = require("./routes/MessageRoutes");
 
 
 
@@ -23,6 +24,7 @@ app.use(
 
 app.use('/api/user', UserRoutes);
 app.use('/api/chat', ChatRoutes);
+app.use('/api/message', MessageRoutes);
 
 
 app.listen(4000, console.log("Server started on port 4000"));
