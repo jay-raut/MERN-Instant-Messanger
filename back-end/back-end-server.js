@@ -28,33 +28,33 @@ app.use('/api/message', MessageRoutes);
 
 
 const api_server = app.listen(4000, console.log("Server started on port 4000"));
-const socket = require('socket.io')(api_server, {
+const io = require('socket.io')(api_server, {
   cors: {
     origin: "http://localhost:3000"
   },
   pingTimeout: 60000
 })
-socket.on('connection', (io) => {
+io.on('connection', (socket) => {
 
-  io.on("setup", (userData) => {
-    io.join(userData.userID);
-    console.log(userData.userID);
-    io.emit('connected');
+
+  socket.on("setup", (userData) => {
+    socket.join(userData.userID);
+    console.log(`user ${userData.userID} connected`);
+    socket.emit('connected');
   });
 
-  io.on("join chat", (room) => {
-    io.join(room);
+  socket.on("join-chat", (room) => {
+    socket.join(room);
     console.log('joined room ' + room._id);
   })
 
-  io.on("send message", (message) => {
+  socket.on("send-message", (message) => {
     const chat = message.groupChat;
-    
     if (!chat.users){
       return console.log('chat users undefined');
     }
     chat.users.forEach((user => {
-      io.in(user._id).emit("message received", message.messageContent);
+      socket.in(user._id).emit("message-received", message);
     }))
   });
 })

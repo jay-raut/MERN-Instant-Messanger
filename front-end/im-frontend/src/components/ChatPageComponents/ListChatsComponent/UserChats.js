@@ -10,27 +10,8 @@ export default function UserChats({ setGroupChatDialogOpen }) {
       itemRefs.current[currentChat._id].scrollIntoView({ behavior: "smooth", block: "nearest" });
     }
   }, [currentChat]);
-  useEffect(() => {
-    async function getUserChats() {
-      console.log("called get chats");
-      try {
-        const response = await fetch("http://localhost:4000/api/chat/", {
-          method: "GET",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-        });
-        if (response.ok) {
-          const response_chats = await response.json();
-          setChats(response_chats.chats);
-        } else {
-          console.error("Failed to fetch chats:", response.statusText);
-        }
-      } catch (error) {
-        console.error("Error fetching chats:", error);
-      }
-    }
-    getUserChats();
-  }, [setChats]);
+
+
 
   function compareChatID(chat1, chat2) {
     return chat1?._id === chat2?._id;

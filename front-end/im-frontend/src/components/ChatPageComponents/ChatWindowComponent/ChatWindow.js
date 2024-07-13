@@ -6,18 +6,12 @@ import SendIcon from "@mui/icons-material/Send";
 import { useEffect, useState } from "react";
 import ChatDetailsDialog from "./ChatDetailsDialog";
 import MessageComponent from "./MessageComponent";
-import io from "socket.io-client";
 import { useRef } from "react";
-export default function ChatWindow({ setSnackBarMessage, setSnackBarVisible }) {
-  const socketEndpoint = "http://localhost:4000";
-  const socket = io(socketEndpoint, {
-    reconnection: false,
-  });
 
-  const { currentChat, currentChatMessages, setCurrentChatMessages, user } = ChatState();
+export default function ChatWindow({ setSnackBarMessage, setSnackBarVisible }) {
+  const { currentChat, currentChatMessages, setCurrentChatMessages, user, socket, chats, setChats } = ChatState();
   const [message, setMessage] = useState("");
   const [chatDetailsDialogOpen, setChatDetailsDialogOpen] = useState(false);
-  const [socketConnected, setSocketConnected] = useState(false);
 
   const itemRefs = useRef({});
   useEffect(() => {
@@ -44,34 +38,39 @@ export default function ChatWindow({ setSnackBarMessage, setSnackBarVisible }) {
     } else {
       const res = await response.json();
       setCurrentChatMessages([...currentChatMessages, res.newMessage]);
-      socket.emit("send message", { groupChat: currentChat, messageContent: res.newMessage });
+      socket.emit("send-message", { groupChat: currentChat, messageContent: res.newMessage });
     }
     setMessage("");
   }
 
   useEffect(() => {
-    socket.emit("setup", user);
-    socket.on("connection", () => setSocketConnected(true));
     if (currentChat) {
-      socket.emit("join chat", currentChat);
+      socket.emit("join-chat", currentChat);
     }
   }, [currentChat]);
 
   useEffect(() => {
     // Subscribe to socket events
-    socket.on("message received", handleMessageReceived);
+    socket.on("message-received", handleMessageReceived);
 
     // Clean up socket event listener
     return () => {
-      socket.off("message received", handleMessageReceived);
+      socket.off("message-received", handleMessageReceived);
     };
-  }, [currentChat]); // Dependency on currentChat ensures useEffect runs when currentChat changes
+  }, [currentChat, chats]); // Dependency on currentChat ensures useEffect runs when currentChat changes
 
-  
   const handleMessageReceived = (receivedMessage) => {
-    console.log(receivedMessage); 
-    if (currentChat && currentChat._id === receivedMessage.chat) {
-      setCurrentChatMessages((prevMessages) => [...prevMessages, receivedMessage]);
+    console.log(receivedMessage);
+    if (currentChat && currentChat._id === receivedMessage.groupChat._id) {
+      setCurrentChatMessages((prevMessages) => [...prevMessages, receivedMessage.messageContent]);
+      return;
+    }
+    const chatExists = chats.some((search_chat) => search_chat._id === receivedMessage.groupChat._id);
+    if (!chatExists) {
+      const index = receivedMessage.groupChat.users.findIndex((chat_user) => chat_user._id === user.userID);
+      const { groupChat } = receivedMessage;
+      groupChat.users[index] = receivedMessage.messageContent.sender;
+      setChats([groupChat, ...chats]);
     }
   };
 
