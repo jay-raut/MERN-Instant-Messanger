@@ -44,6 +44,7 @@ const ChatProvider = ({ children }) => {
         if (response.ok){
           const data = await response.json()
           setCurrentChatMessages(data.messages);
+          
         }
       }catch (e){
         console.log(e);

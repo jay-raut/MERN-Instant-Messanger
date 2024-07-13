@@ -6,7 +6,6 @@ export default function UserChats({ setGroupChatDialogOpen }) {
   const { currentChat, setCurrentChat, chats, setChats } = ChatState();
   const itemRefs = useRef([]);
   useEffect(() => {
-    console.log("called change view");
     if (currentChat && itemRefs.current[currentChat._id]) {
       itemRefs.current[currentChat._id].scrollIntoView({ behavior: "smooth", block: "nearest" });
     }

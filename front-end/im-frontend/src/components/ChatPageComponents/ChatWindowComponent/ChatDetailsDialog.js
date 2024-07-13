@@ -8,7 +8,6 @@ import Grid from "@mui/material/Grid";
 import SaveIcon from "@mui/icons-material/Save";
 import ChatMemberAvatar from "./ChatMemberAvatar";
 import { ChatState } from "../../../Context/ChatProvider";
-import LoadingUsersDialog from "../DialogComponents/LoadingUsersDialog";
 import LogoutIcon from "@mui/icons-material/Logout";
 import ListUsersDialog from "../DialogComponents/ListUsersDialog";
 import { Button, List, Typography } from "@mui/material";

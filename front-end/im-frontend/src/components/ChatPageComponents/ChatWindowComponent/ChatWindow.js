@@ -3,28 +3,78 @@ import { Typography } from "@mui/material";
 import { ChatState } from "../../../Context/ChatProvider";
 import { Button } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ChatDetailsDialog from "./ChatDetailsDialog";
 import MessageComponent from "./MessageComponent";
+import io from "socket.io-client";
+import { useRef } from "react";
 export default function ChatWindow({ setSnackBarMessage, setSnackBarVisible }) {
-  const { currentChat, currentChatMessages, user} = ChatState();
+  const socketEndpoint = "http://localhost:4000";
+  const socket = io(socketEndpoint, {
+    reconnection: false,
+  });
+
+  const { currentChat, currentChatMessages, setCurrentChatMessages, user } = ChatState();
   const [message, setMessage] = useState("");
   const [chatDetailsDialogOpen, setChatDetailsDialogOpen] = useState(false);
+  const [socketConnected, setSocketConnected] = useState(false);
+
+  const itemRefs = useRef({});
+  useEffect(() => {
+    // Scroll to the last message when it changes
+    if (currentChatMessages.length > 0) {
+      const lastMessage = currentChatMessages[currentChatMessages.length - 1];
+      if (itemRefs.current[lastMessage._id]) {
+        itemRefs.current[lastMessage._id].scrollIntoView({ behavior: "auto", block: "end", inline: "nearest" });
+      }
+    }
+  }, [currentChatMessages]);
+
   async function sendMessage(event) {
-    event.preventDefault(); 
+    event.preventDefault();
     const response = await fetch("http://localhost:4000/api/message/", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
-      body:JSON.stringify({groupChatID: currentChat._id, message:message})
+      body: JSON.stringify({ groupChatID: currentChat._id, message: message }),
     });
-    if (!response.ok){
+    if (!response.ok) {
       setSnackBarMessage("Could not send message. Try reloading");
       setSnackBarVisible(true);
+    } else {
+      const res = await response.json();
+      setCurrentChatMessages([...currentChatMessages, res.newMessage]);
+      socket.emit("send message", { groupChat: currentChat, messageContent: res.newMessage });
     }
     setMessage("");
   }
+
+  useEffect(() => {
+    socket.emit("setup", user);
+    socket.on("connection", () => setSocketConnected(true));
+    if (currentChat) {
+      socket.emit("join chat", currentChat);
+    }
+  }, [currentChat]);
+
+  useEffect(() => {
+    // Subscribe to socket events
+    socket.on("message received", handleMessageReceived);
+
+    // Clean up socket event listener
+    return () => {
+      socket.off("message received", handleMessageReceived);
+    };
+  }, [currentChat]); // Dependency on currentChat ensures useEffect runs when currentChat changes
+
   
+  const handleMessageReceived = (receivedMessage) => {
+    console.log(receivedMessage); 
+    if (currentChat && currentChat._id === receivedMessage.chat) {
+      setCurrentChatMessages((prevMessages) => [...prevMessages, receivedMessage]);
+    }
+  };
+
   return (
     <Box sx={{ boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.4)", p: 2, width: "100%", borderRadius: "10px", height: "100%" }}>
       {currentChat ? (
@@ -63,7 +113,9 @@ export default function ChatWindow({ setSnackBarMessage, setSnackBarVisible }) {
             {/* Render chat messages here */}
             <Box sx={{ flex: 1, padding: 2, overflowY: "auto" }}>
               {currentChatMessages.map((message, index) => (
-                  <MessageComponent key={index} message={message} isCurrentUser={message.sender._id === user.userID}></MessageComponent>
+                <div key={message._id} ref={(el) => (itemRefs.current[message._id] = el)}>
+                  <MessageComponent message={message} isCurrentUser={message.sender._id === user.userID} />
+                </div>
               ))}
             </Box>
 
