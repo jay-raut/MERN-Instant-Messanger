@@ -44,7 +44,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on("join-chat", (room) => {
-    socket.join(room);
+    socket.join(room._id);
     console.log('joined room ' + room._id);
   })
 
@@ -57,5 +57,11 @@ io.on('connection', (socket) => {
       socket.in(user._id).emit("message-received", message);
     }))
   });
+
+  socket.on("leave-chat", (room, user) => {
+    socket.leave(room._id);
+    socket.to(room._id).emit('user-left', user, room);
+    console.log('left chat ' + room._id + ' user ' + user.username) 
+  })
 })
 

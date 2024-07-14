@@ -9,7 +9,7 @@ import MessageComponent from "./MessageComponent";
 import { useRef } from "react";
 
 export default function ChatWindow({ setSnackBarMessage, setSnackBarVisible }) {
-  const { currentChat, currentChatMessages, setCurrentChatMessages, user, socket, chats, setChats } = ChatState();
+  const { currentChat, setCurrentChat, currentChatMessages, setCurrentChatMessages, user, socket, chats, setChats } = ChatState();
   const [message, setMessage] = useState("");
   const [chatDetailsDialogOpen, setChatDetailsDialogOpen] = useState(false);
 
@@ -59,6 +59,13 @@ export default function ChatWindow({ setSnackBarMessage, setSnackBarVisible }) {
     };
   }, [currentChat, chats]); // Dependency on currentChat ensures useEffect runs when currentChat changes
 
+  useEffect(() => {
+    socket.on("user-left", handleUserLeft);
+    return () => {
+      socket.off("user-left", handleUserLeft);
+    };
+  }, [currentChat, chats]);
+
   const handleMessageReceived = (receivedMessage) => {
     console.log(receivedMessage);
     if (currentChat && currentChat._id === receivedMessage.groupChat._id) {
@@ -74,6 +81,27 @@ export default function ChatWindow({ setSnackBarMessage, setSnackBarVisible }) {
     }
   };
 
+  const handleUserLeft = (leftUser, room) => {
+    console.log(leftUser);
+    console.log(room);
+    if (currentChat && currentChat._id === room._id) {
+      setCurrentChat({
+        ...currentChat,
+        users: currentChat.users.filter((chat_user) => chat_user._id !== leftUser.userID),
+      });
+    }
+    setChats((prevChats) =>
+      prevChats.map((chat) =>
+        chat._id === room._id
+          ? {
+              ...chat,
+              users: chat.users.filter((chat_user) => chat_user._id !== leftUser.userID),
+            }
+          : chat
+      )
+    );
+  };
+  
   return (
     <Box sx={{ boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.4)", p: 2, width: "100%", borderRadius: "10px", height: "100%" }}>
       {currentChat ? (

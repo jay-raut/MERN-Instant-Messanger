@@ -12,7 +12,7 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import ListUsersDialog from "../DialogComponents/ListUsersDialog";
 import { Button, List, Typography } from "@mui/material";
 export default function ChatDetailsDialog({ isDialogOpen, setDialogVisible, setSnackBarMessage, setSnackBarVisible }) {
-  const { currentChat, setCurrentChat, chats, setChats } = ChatState();
+  const { currentChat, setCurrentChat, chats, setChats, socket, user } = ChatState();
   const [newChatName, setNewChatName] = useState("");
   const [searchResult, setSearchResult] = useState([]);
   const [searchLoading, setSearchLoading] = useState(false);
@@ -127,9 +127,11 @@ export default function ChatDetailsDialog({ isDialogOpen, setDialogVisible, setS
     });
     if (response.ok) {
       const updated_chats = chats.filter((c) => c._id !== currentChat._id);
+      socket.emit("leave-chat", currentChat, user);
       setChats(updated_chats);
       setCurrentChat(null);
       setDialogVisible(false);
+      
     } else {
       setSnackBarMessage("Something went wrong try reloading");
       setSnackBarVisible(true);
