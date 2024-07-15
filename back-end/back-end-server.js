@@ -53,6 +53,7 @@ io.on('connection', (socket) => {
     if (!chat.users){
       return console.log('chat users undefined');
     }
+    message.groupChat.latestMessage = message.messageContent;
     chat.users.forEach((user => {
       socket.in(user._id).emit("message-received", message);
     }))

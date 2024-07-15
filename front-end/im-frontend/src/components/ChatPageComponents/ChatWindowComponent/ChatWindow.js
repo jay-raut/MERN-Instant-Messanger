@@ -38,6 +38,7 @@ export default function ChatWindow({ setSnackBarMessage, setSnackBarVisible }) {
     } else {
       const res = await response.json();
       setCurrentChatMessages([...currentChatMessages, res.newMessage]);
+      currentChat.latestMessage = res.newMessage;
       socket.emit("send-message", { groupChat: currentChat, messageContent: res.newMessage });
     }
     setMessage("");
@@ -67,23 +68,23 @@ export default function ChatWindow({ setSnackBarMessage, setSnackBarVisible }) {
   }, [currentChat, chats]);
 
   const handleMessageReceived = (receivedMessage) => {
-    console.log(receivedMessage);
     if (currentChat && currentChat._id === receivedMessage.groupChat._id) {
       setCurrentChatMessages((prevMessages) => [...prevMessages, receivedMessage.messageContent]);
+      currentChat.latestMessage = receivedMessage.groupChat.latestMessage;
       return;
     }
-    const chatExists = chats.some((search_chat) => search_chat._id === receivedMessage.groupChat._id);
-    if (!chatExists) {
+    const chatExistsIndex = chats.findIndex((search_chat) => search_chat._id === receivedMessage.groupChat._id);
+    if (chatExistsIndex === -1) {
       const index = receivedMessage.groupChat.users.findIndex((chat_user) => chat_user._id === user.userID);
       const { groupChat } = receivedMessage;
       groupChat.users[index] = receivedMessage.messageContent.sender;
       setChats([groupChat, ...chats]);
+    } else { //todo implement notifications 
+      setChats((prevChats) => prevChats.map((chat, index) => (index === chatExistsIndex ? { ...chat, latestMessage: receivedMessage.groupChat.latestMessage } : chat)));
     }
   };
 
   const handleUserLeft = (leftUser, room) => {
-    console.log(leftUser);
-    console.log(room);
     if (currentChat && currentChat._id === room._id) {
       setCurrentChat({
         ...currentChat,
@@ -101,7 +102,7 @@ export default function ChatWindow({ setSnackBarMessage, setSnackBarVisible }) {
       )
     );
   };
-  
+
   return (
     <Box sx={{ boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.4)", p: 2, width: "100%", borderRadius: "10px", height: "100%" }}>
       {currentChat ? (
