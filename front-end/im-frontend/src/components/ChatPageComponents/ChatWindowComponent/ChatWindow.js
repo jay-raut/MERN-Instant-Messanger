@@ -8,6 +8,8 @@ import ChatDetailsDialog from "./ChatDetailsDialog";
 import MessageComponent from "./MessageComponent";
 import { useRef } from "react";
 
+
+
 export default function ChatWindow({ setSnackBarMessage, setSnackBarVisible }) {
   const { currentChat, setCurrentChat, currentChatMessages, setCurrentChatMessages, user, socket, chats, setChats } = ChatState();
   const [message, setMessage] = useState("");
@@ -102,6 +104,8 @@ export default function ChatWindow({ setSnackBarMessage, setSnackBarVisible }) {
       )
     );
   };
+
+
 
   return (
     <Box sx={{ boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.4)", p: 2, width: "100%", borderRadius: "10px", height: "100%" }}>
