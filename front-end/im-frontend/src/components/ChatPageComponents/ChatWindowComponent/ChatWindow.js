@@ -8,8 +8,6 @@ import ChatDetailsDialog from "./ChatDetailsDialog";
 import MessageComponent from "./MessageComponent";
 import { useRef } from "react";
 
-
-
 export default function ChatWindow({ setSnackBarMessage, setSnackBarVisible }) {
   const { currentChat, setCurrentChat, currentChatMessages, setCurrentChatMessages, user, socket, chats, setChats } = ChatState();
   const [message, setMessage] = useState("");
@@ -42,8 +40,9 @@ export default function ChatWindow({ setSnackBarMessage, setSnackBarVisible }) {
       setCurrentChatMessages([...currentChatMessages, res.newMessage]);
       currentChat.latestMessage = res.newMessage;
       socket.emit("send-message", { groupChat: currentChat, messageContent: res.newMessage });
-      if (chats.length > 0 && currentChat !== chats[0]){//if current chat is not at the top of the list then move it to the top
-        console.log('moved to top');
+      if (chats.length > 0 && currentChat !== chats[0]) {
+        //if current chat is not at the top of the list then move it to the top
+        console.log("moved to top");
         const newChats = [...chats];
         const currentChatIndex = newChats.findIndex((search_chat) => search_chat._id === currentChat._id);
         const push_chat = newChats.splice(currentChatIndex, 1)[0];
@@ -89,16 +88,17 @@ export default function ChatWindow({ setSnackBarMessage, setSnackBarVisible }) {
       const { groupChat } = receivedMessage;
       groupChat.users[index] = receivedMessage.messageContent.sender;
       setChats([groupChat, ...chats]);
-    } else { //todo implement notifications 
-      setChats((prevChats) => prevChats.map((chat, index) => (index === chatExistsIndex ? { ...chat, latestMessage: receivedMessage.groupChat.latestMessage } : chat)));
-      if (chats.length > 0 && receivedMessage.groupChat._id !== chats[0]._id){//if its not at the top then move it to the top.
-        console.log('moved to top');
-        const newChats = [...chats];
+    } else {
+      //todo implement notifications
+      const newChats = chats.map((chat, index) => (index === chatExistsIndex ? { ...chat, latestMessage: receivedMessage.groupChat.latestMessage } : chat));
+      if (newChats.length > 0 && receivedMessage.groupChat._id !== newChats[0]._id) {
+        //if its not at the top then move it to the top.
+        console.log("moved to top");
         const currentChatIndex = newChats.findIndex((search_chat) => search_chat._id === receivedMessage.groupChat._id);
         const push_chat = newChats.splice(currentChatIndex, 1)[0];
         newChats.unshift(push_chat);
-        setChats(newChats);
       }
+      setChats(newChats);
     }
   };
 
@@ -120,8 +120,6 @@ export default function ChatWindow({ setSnackBarMessage, setSnackBarVisible }) {
       )
     );
   };
-
-
 
   return (
     <Box sx={{ boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.4)", p: 2, width: "100%", borderRadius: "10px", height: "100%" }}>
