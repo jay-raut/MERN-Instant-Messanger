@@ -22,6 +22,9 @@ const ChatProvider = ({ children }) => {
       });
       if (response.ok) {
         const response_chats = await response.json();
+        response_chats.chats.sort(function(o1, o2){
+          return new Date(o2.updatedAt) - new Date(o1.updatedAt)
+        })
         setChats(response_chats.chats);
       } else {
         console.error("Failed to fetch chats:", response.statusText);
@@ -39,9 +42,8 @@ const ChatProvider = ({ children }) => {
         const data = await response.json();
         setUser(data);
         getUserChats();
-        navigate('/chats');
-        initializeSocket(data);
-        const newSocketConnection = getSocket();
+        navigate("/chats");
+        const newSocketConnection = initializeSocket(data);
         setSocket(newSocketConnection);
       } else {
         navigate("/");
@@ -51,12 +53,12 @@ const ChatProvider = ({ children }) => {
   }, [navigate]);
 
   useEffect(() => {
-    async function getMessages(){
-      if (!currentChat){
+    async function getMessages() {
+      if (!currentChat) {
         return;
       }
       setMessageLoading(true);
-      try{
+      try {
         const response = await fetch(`http://localhost:4000/api/message?chatID=${currentChat._id}`, {
           method: "GET",
           headers: {
@@ -64,19 +66,21 @@ const ChatProvider = ({ children }) => {
           },
           credentials: "include",
         });
-        if (response.ok){
-          const data = await response.json()
+        if (response.ok) {
+          const data = await response.json();
           setCurrentChatMessages(data.messages);
         }
-      }catch (e){
+      } catch (e) {
         console.log(e);
       }
       setMessageLoading(false);
     }
     getMessages();
-  }, [currentChat])
+  }, [currentChat]);
 
-  return <ChatContext.Provider value={{ user, setUser, currentChat, setCurrentChat, chats, setChats, currentChatMessages, setCurrentChatMessages, messageLoading, socket }}>{children}</ChatContext.Provider>;
+  return (
+    <ChatContext.Provider value={{ user, setUser, currentChat, setCurrentChat, chats, setChats, currentChatMessages, setCurrentChatMessages, messageLoading, socket }}>{children}</ChatContext.Provider>
+  );
 };
 
 export const ChatState = () => {

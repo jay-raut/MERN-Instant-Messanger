@@ -10,7 +10,11 @@ const chatModel = mongoose.Schema({
     },
   ],
   latestMessage: {type: mongoose.Schema.Types.ObjectId}
-});
+},
+{
+  timestamps: true,
+}
+);
 
 const Chat = mongoose.model("Chat", chatModel);
 module.exports = Chat;

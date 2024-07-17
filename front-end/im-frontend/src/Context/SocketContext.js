@@ -3,8 +3,8 @@ import Cookies from "js-cookie";
 const socketEndpoint = "http://localhost:4000";
 let socket;
 
-const token = Cookies.get('token')
 export function initializeSocket(user) {
+  const token = Cookies.get("token");
   socket = io(socketEndpoint, {
     reconnection: true,
     query: {
@@ -22,11 +22,10 @@ export function initializeSocket(user) {
     console.log("Socket disconnected");
   });
 
-  socket.on('connect_error', (error) => {
-    console.error('Connection error:', error.message);
-    
+  socket.on("connect_error", (error) => {
+    console.error("Connection error:", error.message);
   });
-  
+
   return socket;
 }
 

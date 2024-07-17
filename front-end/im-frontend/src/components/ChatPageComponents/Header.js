@@ -38,7 +38,7 @@ export default function Header() {
     setMobileMoreAnchorEl(event.currentTarget);
   };
 
-  const menuId = "primary-search-account-menu";
+  
   const renderMenu = (
     <Menu
       anchorEl={anchorEl}
@@ -46,7 +46,7 @@ export default function Header() {
         vertical: "bottom",
         horizontal: "right",
       }}
-      id={menuId}
+      id={'account-menu'}
       keepMounted
       transformOrigin={{
         vertical: "top",
@@ -101,17 +101,16 @@ export default function Header() {
           <Typography marginLeft={"15px"} variant="h6" noWrap component="div" sx={{ display: { xs: "none", sm: "block" }}}>
             Messenger
           </Typography>
-
           <Box sx={{ flexGrow: 1 }} />
           <Box sx={{ display: { xs: "none", md: "flex" } }}>
-            <IconButton size="large" aria-label="show 17 new notifications" color="inherit">
-              <Badge badgeContent={20} color="error">
+            <IconButton size="large" aria-label="show notifications" color="inherit">
+              <Badge badgeContent={201} color="error">
                 {" "}
                 {/* badge for notification bell*/}
                 <NotificationsIcon />
               </Badge>
             </IconButton>
-            <IconButton size="large" edge="end" aria-label="account of current user" aria-controls={menuId} aria-haspopup="true" onClick={handleProfileMenuOpen} color="inherit">
+            <IconButton size="large" edge="end" aria-label="account of current user" aria-controls={"account-menu"} aria-haspopup="true" onClick={handleProfileMenuOpen} color="inherit">
               <Avatar sx={{ width: 32, height: 32 }}>{user.firstname.charAt(0).toUpperCase()}</Avatar>
             </IconButton>
           </Box>

@@ -42,6 +42,14 @@ export default function ChatWindow({ setSnackBarMessage, setSnackBarVisible }) {
       setCurrentChatMessages([...currentChatMessages, res.newMessage]);
       currentChat.latestMessage = res.newMessage;
       socket.emit("send-message", { groupChat: currentChat, messageContent: res.newMessage });
+      if (chats.length > 0 && currentChat !== chats[0]){//if current chat is not at the top of the list then move it to the top
+        console.log('moved to top');
+        const newChats = [...chats];
+        const currentChatIndex = newChats.findIndex((search_chat) => search_chat._id === currentChat._id);
+        const push_chat = newChats.splice(currentChatIndex, 1)[0];
+        newChats.unshift(push_chat);
+        setChats(newChats);
+      }
     }
     setMessage("");
   }
@@ -83,6 +91,14 @@ export default function ChatWindow({ setSnackBarMessage, setSnackBarVisible }) {
       setChats([groupChat, ...chats]);
     } else { //todo implement notifications 
       setChats((prevChats) => prevChats.map((chat, index) => (index === chatExistsIndex ? { ...chat, latestMessage: receivedMessage.groupChat.latestMessage } : chat)));
+      if (chats.length > 0 && receivedMessage.groupChat._id !== chats[0]._id){//if its not at the top then move it to the top.
+        console.log('moved to top');
+        const newChats = [...chats];
+        const currentChatIndex = newChats.findIndex((search_chat) => search_chat._id === receivedMessage.groupChat._id);
+        const push_chat = newChats.splice(currentChatIndex, 1)[0];
+        newChats.unshift(push_chat);
+        setChats(newChats);
+      }
     }
   };
 
