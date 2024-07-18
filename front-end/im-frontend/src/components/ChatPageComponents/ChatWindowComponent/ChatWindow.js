@@ -12,8 +12,10 @@ export default function ChatWindow({ setSnackBarMessage, setSnackBarVisible }) {
   const { currentChat, setCurrentChat, currentChatMessages, setCurrentChatMessages, user, socket, chats, setChats } = ChatState();
   const [message, setMessage] = useState("");
   const [chatDetailsDialogOpen, setChatDetailsDialogOpen] = useState(false);
-
+  const [localMessageID, setLocalMessageID] = useState(0);
   const itemRefs = useRef({});
+  
+  
   useEffect(() => {
     // Scroll to the last message when it changes
     if (currentChatMessages.length > 0) {
@@ -24,20 +26,29 @@ export default function ChatWindow({ setSnackBarMessage, setSnackBarVisible }) {
     }
   }, [currentChatMessages]);
 
+  useEffect(()=>{
+    setLocalMessageID(0);
+
+  },[currentChat])
+
   async function sendMessage(event) {
     event.preventDefault();
+    const send_message = message;
+    setMessage("");
+    const newMessage = {_id:localMessageID, chat:currentChat._id, content:send_message, createdAt:new Date().toISOString(), sender:{first_name:user.firstname, last_name:user.lastname, username: user.username, _id:user.userID}}
+    setCurrentChatMessages([...currentChatMessages, newMessage]);
+    setLocalMessageID(prev => prev + 1);
     const response = await fetch("http://localhost:4000/api/message/", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
-      body: JSON.stringify({ groupChatID: currentChat._id, message: message }),
+      body: JSON.stringify({ groupChatID: currentChat._id, message: send_message }),
     });
     if (!response.ok) {
       setSnackBarMessage("Could not send message. Try reloading");
       setSnackBarVisible(true);
     } else {
       const res = await response.json();
-      setCurrentChatMessages([...currentChatMessages, res.newMessage]);
       currentChat.latestMessage = res.newMessage;
       socket.emit("send-message", { groupChat: currentChat, messageContent: res.newMessage });
       if (chats.length > 0 && currentChat !== chats[0]) {
@@ -50,7 +61,6 @@ export default function ChatWindow({ setSnackBarMessage, setSnackBarVisible }) {
         setChats(newChats);
       }
     }
-    setMessage("");
   }
 
   useEffect(() => {
