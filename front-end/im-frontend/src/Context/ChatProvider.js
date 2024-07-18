@@ -8,6 +8,7 @@ const ChatProvider = ({ children }) => {
   const [user, setUser] = useState({});
   const [currentChat, setCurrentChat] = useState();
   const [currentChatMessages, setCurrentChatMessages] = useState([]);
+  const [forceStateUpdate, setForceStateUpdate] = useState(false);
   const [messageLoading, setMessageLoading] = useState(false);
   const [chats, setChats] = useState([]);
   const [socket, setSocket] = useState(null);
@@ -79,7 +80,7 @@ const ChatProvider = ({ children }) => {
   }, [currentChat]);
 
   return (
-    <ChatContext.Provider value={{ user, setUser, currentChat, setCurrentChat, chats, setChats, currentChatMessages, setCurrentChatMessages, messageLoading, socket }}>{children}</ChatContext.Provider>
+    <ChatContext.Provider value={{ user, setUser, currentChat, setCurrentChat, chats, setChats, currentChatMessages, setCurrentChatMessages, messageLoading, socket, forceStateUpdate, setForceStateUpdate }}>{children}</ChatContext.Provider>
   );
 };
 

@@ -9,9 +9,10 @@ import MessageComponent from "./MessageComponent";
 import { useRef } from "react";
 
 export default function ChatWindow({ setSnackBarMessage, setSnackBarVisible }) {
-  const { currentChat, setCurrentChat, currentChatMessages, setCurrentChatMessages, user, socket, chats, setChats } = ChatState();
+  const { currentChat, setCurrentChat, currentChatMessages, setCurrentChatMessages, user, socket, chats, setChats, forceStateUpdate, setForceStateUpdate } = ChatState();
   const [chatDetailsDialogOpen, setChatDetailsDialogOpen] = useState(false);
   const [localMessageID, setLocalMessageID] = useState(0);
+
   const itemRefs = useRef({});
   const inputRef = useRef(null);
 
@@ -26,8 +27,11 @@ export default function ChatWindow({ setSnackBarMessage, setSnackBarVisible }) {
   }, [currentChatMessages]);
 
   useEffect(() => {
-    setLocalMessageID(0);
+    console.log("state update");
+  }, [forceStateUpdate]);
 
+  useEffect(() => {
+    setLocalMessageID(0);
   }, [currentChat]);
 
   async function sendMessage(event) {
@@ -44,9 +48,10 @@ export default function ChatWindow({ setSnackBarMessage, setSnackBarVisible }) {
       createdAt: new Date().toISOString(),
       sender: { first_name: user.firstname, last_name: user.lastname, username: user.username, _id: user.userID },
     };
-    currentChat.latestMessage = newMessage
     setCurrentChatMessages([...currentChatMessages, newMessage]);
     setLocalMessageID((prev) => prev + 1);
+    currentChat.latestMessage = newMessage;
+    setForceStateUpdate(!forceStateUpdate); //force state update by updating state in context
     const response = await fetch("http://localhost:4000/api/message/", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -58,7 +63,6 @@ export default function ChatWindow({ setSnackBarMessage, setSnackBarVisible }) {
       setSnackBarVisible(true);
     } else {
       const res = await response.json();
-      
       socket.emit("send-message", { groupChat: currentChat, messageContent: res.newMessage });
       if (chats.length > 0 && currentChat !== chats[0]) {
         //if current chat is not at the top of the list then move it to the top
@@ -70,6 +74,7 @@ export default function ChatWindow({ setSnackBarMessage, setSnackBarVisible }) {
         setChats(newChats);
       }
     }
+
   }
 
   useEffect(() => {
