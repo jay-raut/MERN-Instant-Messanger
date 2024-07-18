@@ -10,10 +10,10 @@ import { useRef } from "react";
 
 export default function ChatWindow({ setSnackBarMessage, setSnackBarVisible }) {
   const { currentChat, setCurrentChat, currentChatMessages, setCurrentChatMessages, user, socket, chats, setChats } = ChatState();
-  const [message, setMessage] = useState("");
   const [chatDetailsDialogOpen, setChatDetailsDialogOpen] = useState(false);
   const [localMessageID, setLocalMessageID] = useState(0);
   const itemRefs = useRef({});
+  const inputRef = useRef(null);
   
   
   useEffect(() => {
@@ -33,8 +33,11 @@ export default function ChatWindow({ setSnackBarMessage, setSnackBarVisible }) {
 
   async function sendMessage(event) {
     event.preventDefault();
-    const send_message = message;
-    setMessage("");
+    if (inputRef.current.value.length <= 0){
+      return;
+    }
+    const send_message = inputRef.current.value;
+    inputRef.current.value = "";
     const newMessage = {_id:localMessageID, chat:currentChat._id, content:send_message, createdAt:new Date().toISOString(), sender:{first_name:user.firstname, last_name:user.lastname, username: user.username, _id:user.userID}}
     setCurrentChatMessages([...currentChatMessages, newMessage]);
     setLocalMessageID(prev => prev + 1);
@@ -181,9 +184,8 @@ export default function ChatWindow({ setSnackBarMessage, setSnackBarVisible }) {
                 fullWidth
                 placeholder="Type a message..."
                 variant="outlined"
-                value={message}
+                inputRef={inputRef}
                 autoComplete="off"
-                onChange={(event) => setMessage(event.target.value)}
                 sx={{
                   marginRight: 2,
                   "& fieldset": {
