@@ -14,8 +14,7 @@ export default function ChatWindow({ setSnackBarMessage, setSnackBarVisible }) {
   const [localMessageID, setLocalMessageID] = useState(0);
   const itemRefs = useRef({});
   const inputRef = useRef(null);
-  
-  
+
   useEffect(() => {
     // Scroll to the last message when it changes
     if (currentChatMessages.length > 0) {
@@ -26,21 +25,28 @@ export default function ChatWindow({ setSnackBarMessage, setSnackBarVisible }) {
     }
   }, [currentChatMessages]);
 
-  useEffect(()=>{
+  useEffect(() => {
     setLocalMessageID(0);
 
-  },[currentChat])
+  }, [currentChat]);
 
   async function sendMessage(event) {
     event.preventDefault();
-    if (inputRef.current.value.length <= 0){
+    if (inputRef.current.value.length <= 0) {
       return;
     }
     const send_message = inputRef.current.value;
     inputRef.current.value = "";
-    const newMessage = {_id:localMessageID, chat:currentChat._id, content:send_message, createdAt:new Date().toISOString(), sender:{first_name:user.firstname, last_name:user.lastname, username: user.username, _id:user.userID}}
+    const newMessage = {
+      _id: localMessageID,
+      chat: currentChat._id,
+      content: send_message,
+      createdAt: new Date().toISOString(),
+      sender: { first_name: user.firstname, last_name: user.lastname, username: user.username, _id: user.userID },
+    };
+    currentChat.latestMessage = newMessage
     setCurrentChatMessages([...currentChatMessages, newMessage]);
-    setLocalMessageID(prev => prev + 1);
+    setLocalMessageID((prev) => prev + 1);
     const response = await fetch("http://localhost:4000/api/message/", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -52,7 +58,7 @@ export default function ChatWindow({ setSnackBarMessage, setSnackBarVisible }) {
       setSnackBarVisible(true);
     } else {
       const res = await response.json();
-      currentChat.latestMessage = res.newMessage;
+      
       socket.emit("send-message", { groupChat: currentChat, messageContent: res.newMessage });
       if (chats.length > 0 && currentChat !== chats[0]) {
         //if current chat is not at the top of the list then move it to the top
@@ -167,10 +173,11 @@ export default function ChatWindow({ setSnackBarMessage, setSnackBarVisible }) {
               justifyContent: "space-between",
               padding: 2,
               overflowY: "auto",
+              overflowX: "hidden",
               borderRadius: "10px",
             }}>
             {/* Render chat messages here */}
-            <Box sx={{ flex: 1, padding: 2, overflowY: "auto" }}>
+            <Box sx={{ flex: 1, padding: 2, overflowY: "auto", overflowX: "hidden" }}>
               {currentChatMessages.map((message, index) => (
                 <div key={message._id} ref={(el) => (itemRefs.current[message._id] = el)}>
                   <MessageComponent message={message} isCurrentUser={message.sender._id === user.userID} />
