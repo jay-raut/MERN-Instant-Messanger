@@ -26,9 +26,6 @@ export default function ChatWindow({ setSnackBarMessage, setSnackBarVisible }) {
     }
   }, [currentChatMessages]);
 
-  useEffect(() => {
-    console.log("state update");
-  }, [forceStateUpdate]);
 
   useEffect(() => {
     setLocalMessageID(0);
