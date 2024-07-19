@@ -22,8 +22,8 @@ app.use("/api/user", UserRoutes);
 app.use("/api/chat", ChatRoutes);
 app.use("/api/message", MessageRoutes);
 
-function verifyToken(token){
-  if (!token){
+function verifyToken(token) {
+  if (!token) {
     return false;
   }
   var return_verify_status = true;
@@ -32,7 +32,7 @@ function verifyToken(token){
       return_verify_status = false;
     }
   });
-  return return_verify_status
+  return return_verify_status;
 }
 
 const api_server = app.listen(4000, console.log("Server started on port 4000"));
@@ -43,7 +43,8 @@ const io = require("socket.io")(api_server, {
   pingTimeout: 60000,
 });
 
-io.use((socket, next) => {//jwt auth
+io.use((socket, next) => {
+  //jwt auth
   const token = socket.handshake.query.token;
   if (verifyToken(token)) {
     next();
@@ -77,7 +78,14 @@ io.on("connection", (socket) => {
 
   socket.on("leave-chat", (room, user) => {
     socket.leave(room._id);
+    if (room.users.length <= 2) {
+      room.isGroupChat = false;
+    }
     socket.to(room._id).emit("user-left", user, room);
     console.log("left chat " + room._id + " user " + user.username);
+  });
+
+  socket.on("add-user", (room, user) => {
+    socket.to(room._id).emit("user-added", user, room);
   });
 });

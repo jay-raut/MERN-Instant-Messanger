@@ -26,7 +26,6 @@ export default function ChatWindow({ setSnackBarMessage, setSnackBarVisible }) {
     }
   }, [currentChatMessages]);
 
-
   useEffect(() => {
     setLocalMessageID(0);
   }, [currentChat]);
@@ -71,7 +70,6 @@ export default function ChatWindow({ setSnackBarMessage, setSnackBarVisible }) {
         setChats(newChats);
       }
     }
-
   }
 
   useEffect(() => {
@@ -97,10 +95,37 @@ export default function ChatWindow({ setSnackBarMessage, setSnackBarVisible }) {
     };
   }, [currentChat, chats]);
 
+  useEffect(() => {
+    socket.on("user-added", handleUserAdded);
+    return () => {
+      socket.off("user-added", handleUserAdded);
+    };
+  }, [currentChat, chats]);
+
+  const handleUserAdded = (addedUser, room) => {
+    setCurrentChat({
+      ...currentChat,
+      isGroupChat: room.isGroupChat,
+      users: [addedUser, ...currentChat.users],
+    });
+    setChats((prevChats) =>
+      prevChats.map((chat) =>
+        chat._id === room._id
+          ? {
+              ...chat,
+              isGroupChat: room.isGroupChat,
+              users: [addedUser, ...chat.users],
+            }
+          : chat
+      )
+    );
+  };
+
   const handleMessageReceived = (receivedMessage) => {
     if (currentChat && currentChat._id === receivedMessage.groupChat._id) {
-      setCurrentChatMessages((prevMessages) => [...prevMessages, receivedMessage.messageContent]);
       currentChat.latestMessage = receivedMessage.groupChat.latestMessage;
+      setForceStateUpdate(!forceStateUpdate); //force state update by updating state in context
+      setCurrentChatMessages((prevMessages) => [...prevMessages, receivedMessage.messageContent]);
       return;
     }
     const chatExistsIndex = chats.findIndex((search_chat) => search_chat._id === receivedMessage.groupChat._id);
@@ -125,8 +150,10 @@ export default function ChatWindow({ setSnackBarMessage, setSnackBarVisible }) {
 
   const handleUserLeft = (leftUser, room) => {
     if (currentChat && currentChat._id === room._id) {
+      console.log(room);
       setCurrentChat({
         ...currentChat,
+        isGroupChat: room.isGroupChat,
         users: currentChat.users.filter((chat_user) => chat_user._id !== leftUser.userID),
       });
     }
@@ -135,6 +162,7 @@ export default function ChatWindow({ setSnackBarMessage, setSnackBarVisible }) {
         chat._id === room._id
           ? {
               ...chat,
+              isGroupChat: room.isGroupChat,
               users: chat.users.filter((chat_user) => chat_user._id !== leftUser.userID),
             }
           : chat

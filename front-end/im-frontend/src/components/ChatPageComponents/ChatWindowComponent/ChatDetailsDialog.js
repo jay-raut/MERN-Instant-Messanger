@@ -109,9 +109,9 @@ export default function ChatDetailsDialog({ isDialogOpen, setDialogVisible, setS
       currentChat.chatname = res.chat.chatname;
       currentChat.users = [user, ...currentChat.users];
       const updated_chats = chats.filter((c) => c._id !== currentChat._id);
-
       setChats([currentChat, ...updated_chats]);
       setCurrentChat(currentChat);
+      socket.emit("add-user", currentChat, user);
     } else {
       setSnackBarMessage("Something went wrong try reloading");
       setSnackBarVisible(true);
