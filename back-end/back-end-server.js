@@ -98,4 +98,10 @@ io.on("connection", (socket) => {
       }
     });
   });
+
+  socket.on("rename-chat", (room, newName) => {
+    room.users.forEach((user) => {
+      socket.in(user._id).emit("chat-renamed", newName, room);
+    })
+  })
 });

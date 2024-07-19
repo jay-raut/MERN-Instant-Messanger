@@ -210,7 +210,6 @@ router.post("/adduser", async (req, res) => {
       chat.users.push(newUserID);
       if (chat.users.length > 2) {
         chat.isGroupChat = true;
-        chat.chatname = "Group Chat";
       }
       await chat.save();
       return res.status(200).json({ message: "User added successfully", chat });

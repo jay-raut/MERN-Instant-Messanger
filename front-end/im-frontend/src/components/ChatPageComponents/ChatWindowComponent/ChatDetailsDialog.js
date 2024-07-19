@@ -34,6 +34,7 @@ export default function ChatDetailsDialog({ isDialogOpen, setDialogVisible, setS
 
       setChats([currentChat, ...updated_chats]);
       setCurrentChat(currentChat);
+      socket.emit("rename-chat", currentChat, res.chat.chatname);
     } else {
       setSnackBarMessage("Something went wrong try reloading");
       setSnackBarVisible(true);

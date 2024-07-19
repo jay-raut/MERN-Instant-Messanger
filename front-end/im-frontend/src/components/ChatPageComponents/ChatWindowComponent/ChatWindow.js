@@ -102,6 +102,31 @@ export default function ChatWindow({ setSnackBarMessage, setSnackBarVisible }) {
     };
   }, [currentChat, chats]);
 
+  useEffect(() => {
+    socket.on("chat-renamed", handleRenamedChat);
+    return () => {
+      socket.off("chat-renamed", handleRenamedChat);
+    };
+  }, [currentChat, chats]);
+
+  const handleRenamedChat = (newName, room) => {
+    console.log(newName);
+    console.log(room);
+    const newChats = chats.map((chat) =>
+      chat._id === room._id
+        ? {
+            ...chat,
+            chatname: room.chatname,
+          }
+        : chat
+    );
+    setChats(newChats);
+    if (currentChat && currentChat._id === room._id) {
+      const setNewCurrentChat = newChats.find((chat) => chat._id === room._id);
+      setCurrentChat(setNewCurrentChat);
+    }
+  };
+
   const handleUserAdded = (addedUser, room) => {
     const newChats = chats.map((chat) =>
       chat._id === room._id
