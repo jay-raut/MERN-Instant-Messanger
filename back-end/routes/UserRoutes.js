@@ -60,7 +60,7 @@ router.post("/login", async (req, res) => {
     res.cookie("token", token).json({
       first_name: userDoc.first_name,
       last_name: userDoc.last_name,
-      _id:userDoc._id
+      _id: userDoc._id,
     });
   } catch (e) {
     console.error(e);
@@ -87,16 +87,16 @@ router.get("/find-user", async (req, res) => {
         query = {
           $or: [{ first_name: { $regex: searchQuery, $options: "i" } }, { last_name: { $regex: searchQuery, $options: "i" } }, { username: { $regex: searchQuery, $options: "i" } }],
         };
-        query._id = {$ne: info.userID};
-      }else{
-        return res.status(200).json({users: []});
+        query._id = { $ne: info.userID };
+      } else {
+        return res.status(200).json({ users: [] });
       }
 
       const users = await User.find(query).select("-password").select("-createdAt").select("-updatedAt").select("-__v");
       res.status(200).json({ users });
     } catch (error) {
       console.error("Error finding users:", error);
-      res.status(200).json({users: []});
+      res.status(200).json({ users: [] });
     }
   });
 });

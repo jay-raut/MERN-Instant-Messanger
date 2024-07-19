@@ -11,12 +11,14 @@ import AccountCircle from "@mui/icons-material/AccountCircle";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import MoreIcon from "@mui/icons-material/MoreVert";
 import { ChatState } from "../../Context/ChatProvider";
+import LogoutIcon from "@mui/icons-material/Logout";
 import { Avatar } from "@mui/material";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import SearchSideDrawer from "./SidedrawerComponents/SearchSideDrawer";
-export default function Header() {
+export default function Header( setSnackBarMessage, setSnackBarVisible) {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
-  const { user } = ChatState();
+  const { user, socket } = ChatState();
 
   const isMenuOpen = Boolean(anchorEl);
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
@@ -38,7 +40,18 @@ export default function Header() {
     setMobileMoreAnchorEl(event.currentTarget);
   };
 
-  
+  const handleLogout = async () => {
+    console.log("logout");
+    socket.disconnect();
+    const pastDate = new Date(0).toUTCString();
+    document.cookie = `token=; expires=${pastDate}; path=/;`;
+    window.location.href = "/"
+  };
+
+  const handleMyAccount = () => {
+    console.log("my account");
+  };
+
   const renderMenu = (
     <Menu
       anchorEl={anchorEl}
@@ -46,7 +59,7 @@ export default function Header() {
         vertical: "bottom",
         horizontal: "right",
       }}
-      id={'account-menu'}
+      id={"account-menu"}
       keepMounted
       transformOrigin={{
         vertical: "top",
@@ -54,8 +67,18 @@ export default function Header() {
       }}
       open={isMenuOpen}
       onClose={handleMenuClose}>
-      <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
-      <MenuItem onClick={handleMenuClose}>My account</MenuItem>
+      <MenuItem onClick={handleLogout}>
+        <Box sx={{ display: "flex", alignItems: "center", width: "100%" }}>
+          Logout
+          <LogoutIcon sx={{ marginLeft: 2 }} />
+        </Box>
+      </MenuItem>
+      <MenuItem onClick={handleMyAccount}>
+        <Box sx={{ display: "flex", alignItems: "center", width: "100%" }}>
+          My account
+          <AccountCircleIcon sx={{ marginLeft: 1 }} />
+        </Box>
+      </MenuItem>
     </Menu>
   );
 
@@ -93,37 +116,38 @@ export default function Header() {
   );
 
   return (
-    (user && Object.keys(user).length > 0 && 
-    <Box>
-      <AppBar  position="sticky" sx={{position:"sticky"}}>
-        <Toolbar>
+    user &&
+    Object.keys(user).length > 0 && (
+      <Box>
+        <AppBar position="sticky" sx={{ position: "sticky" }}>
+          <Toolbar>
             <SearchSideDrawer></SearchSideDrawer>
-          <Typography marginLeft={"15px"} variant="h6" noWrap component="div" sx={{ display: { xs: "none", sm: "block" }}}>
-            Messenger
-          </Typography>
-          <Box sx={{ flexGrow: 1 }} />
-          <Box sx={{ display: { xs: "none", md: "flex" } }}>
-            <IconButton size="large" aria-label="show notifications" color="inherit">
-              <Badge badgeContent={201} color="error">
-                {" "}
-                {/* badge for notification bell*/}
-                <NotificationsIcon />
-              </Badge>
-            </IconButton>
-            <IconButton size="large" edge="end" aria-label="account of current user" aria-controls={"account-menu"} aria-haspopup="true" onClick={handleProfileMenuOpen} color="inherit">
-              <Avatar sx={{ width: 32, height: 32 }}>{user.firstname.charAt(0).toUpperCase()}</Avatar>
-            </IconButton>
-          </Box>
-          <Box sx={{ display: { xs: "flex", md: "none" } }}>
-            <IconButton size="large" aria-label="show more" aria-controls={mobileMenuId} aria-haspopup="true" onClick={handleMobileMenuOpen} color="inherit">
-              <MoreIcon />
-            </IconButton>
-          </Box>
-        </Toolbar>
-      </AppBar>
-      {renderMobileMenu}
-      {renderMenu}
-    </Box>
+            <Typography marginLeft={"15px"} variant="h6" noWrap component="div" sx={{ display: { xs: "none", sm: "block" } }}>
+              Messenger
+            </Typography>
+            <Box sx={{ flexGrow: 1 }} />
+            <Box sx={{ display: { xs: "none", md: "flex" } }}>
+              <IconButton size="large" aria-label="show notifications" color="inherit">
+                <Badge badgeContent={201} color="error">
+                  {" "}
+                  {/* badge for notification bell*/}
+                  <NotificationsIcon />
+                </Badge>
+              </IconButton>
+              <IconButton size="large" edge="end" aria-label="account of current user" aria-controls={"account-menu"} aria-haspopup="true" onClick={handleProfileMenuOpen} color="inherit">
+                <Avatar sx={{ width: 32, height: 32 }}>{user.firstname.charAt(0).toUpperCase()}</Avatar>
+              </IconButton>
+            </Box>
+            <Box sx={{ display: { xs: "flex", md: "none" } }}>
+              <IconButton size="large" aria-label="show more" aria-controls={mobileMenuId} aria-haspopup="true" onClick={handleMobileMenuOpen} color="inherit">
+                <MoreIcon />
+              </IconButton>
+            </Box>
+          </Toolbar>
+        </AppBar>
+        {renderMobileMenu}
+        {renderMenu}
+      </Box>
     )
   );
 }

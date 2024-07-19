@@ -12,21 +12,22 @@ export default function Chatpage() {
   const [snackBarMessage, setSnackBarMessage] = useState("");
   const { user } = ChatState();
   return (
-    (user && Object.keys(user).length > 0 && 
-    <>
-      <Header />
-      <GroupChatDialog isDialogOpen={groupChatDialogOpen} setDialogVisible={setGroupChatDialogOpen} setSnackBarMessage={setSnackBarMessage} setSnackBarVisible={setSnackBarVisible}></GroupChatDialog>
-      
-      <Box sx={{overflow:"auto", display: "flex", justifyContent: "space-between", height: "calc(100vh - 64px)" }}>
-        <Box sx={{ width: "100%", maxHeight: "100%", maxWidth: "400px", margin: "5px" }}>
-          <UserChats setGroupChatDialogOpen={setGroupChatDialogOpen} />
+    user &&
+    Object.keys(user).length > 0 && (
+      <>
+        <Header setSnackBarMessage={setSnackBarMessage} setSnackBarVisible={setSnackBarVisible} />
+        <GroupChatDialog isDialogOpen={groupChatDialogOpen} setDialogVisible={setGroupChatDialogOpen} setSnackBarMessage={setSnackBarMessage} setSnackBarVisible={setSnackBarVisible}></GroupChatDialog>
+
+        <Box sx={{ overflow: "auto", display: "flex", justifyContent: "space-between", height: "calc(100vh - 64px)" }}>
+          <Box sx={{ width: "100%", maxHeight: "100%", maxWidth: "400px", margin: "5px" }}>
+            <UserChats setGroupChatDialogOpen={setGroupChatDialogOpen} />
+          </Box>
+          <Box sx={{ width: "100%", maxHeight: "100%", margin: "5px" }}>
+            <ChatWindow setSnackBarMessage={setSnackBarMessage} setSnackBarVisible={setSnackBarVisible} />
+          </Box>
         </Box>
-        <Box sx={{ width: "100%", maxHeight: "100%", margin: "5px" }}>
-          <ChatWindow setSnackBarMessage={setSnackBarMessage} setSnackBarVisible={setSnackBarVisible} />
-        </Box>
-      </Box>
-      <SnackBar open={snackBarVisible} setOpen={setSnackBarVisible} message={snackBarMessage}></SnackBar>
-    </>
+        <SnackBar open={snackBarVisible} setOpen={setSnackBarVisible} message={snackBarMessage}></SnackBar>
+      </>
     )
   );
 }

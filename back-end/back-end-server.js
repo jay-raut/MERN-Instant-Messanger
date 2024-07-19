@@ -104,4 +104,8 @@ io.on("connection", (socket) => {
       socket.in(user._id).emit("chat-renamed", newName, room);
     })
   })
+
+  socket.on("disconnect", () => {
+    console.log('user disconnected');
+  })
 });
