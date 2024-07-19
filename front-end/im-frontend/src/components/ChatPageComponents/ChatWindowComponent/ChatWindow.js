@@ -103,22 +103,21 @@ export default function ChatWindow({ setSnackBarMessage, setSnackBarVisible }) {
   }, [currentChat, chats]);
 
   const handleUserAdded = (addedUser, room) => {
-    setCurrentChat({
-      ...currentChat,
-      isGroupChat: room.isGroupChat,
-      users: [addedUser, ...currentChat.users],
-    });
-    setChats((prevChats) =>
-      prevChats.map((chat) =>
-        chat._id === room._id
-          ? {
-              ...chat,
-              isGroupChat: room.isGroupChat,
-              users: [addedUser, ...chat.users],
-            }
-          : chat
-      )
+    const newChats = chats.map((chat) =>
+      chat._id === room._id
+        ? {
+            ...chat,
+            isGroupChat: room.isGroupChat,
+            users: [addedUser, ...chat.users],
+          }
+        : chat
     );
+    setChats(newChats);
+    if (currentChat && currentChat._id === room._id) {
+      const setNewCurrentChat = newChats.find((chat) => chat._id === room._id);
+      console.log(setNewCurrentChat);
+      setCurrentChat(setNewCurrentChat);
+    }
   };
 
   const handleMessageReceived = (receivedMessage) => {
@@ -149,25 +148,21 @@ export default function ChatWindow({ setSnackBarMessage, setSnackBarVisible }) {
   };
 
   const handleUserLeft = (leftUser, room) => {
-    if (currentChat && currentChat._id === room._id) {
-      console.log(room);
-      setCurrentChat({
-        ...currentChat,
-        isGroupChat: room.isGroupChat,
-        users: currentChat.users.filter((chat_user) => chat_user._id !== leftUser.userID),
-      });
-    }
-    setChats((prevChats) =>
-      prevChats.map((chat) =>
-        chat._id === room._id
-          ? {
-              ...chat,
-              isGroupChat: room.isGroupChat,
-              users: chat.users.filter((chat_user) => chat_user._id !== leftUser.userID),
-            }
-          : chat
-      )
+    const newChats = chats.map((chat) =>
+      chat._id === room._id
+        ? {
+            ...chat,
+            isGroupChat: room.isGroupChat,
+            users: chat.users.filter((chat_user) => chat_user._id !== leftUser.userID),
+          }
+        : chat
     );
+    setChats(newChats);
+    if (currentChat && currentChat._id === room._id) {
+      const setNewCurrentChat = newChats.find((chat) => chat._id === room._id);
+      console.log(setNewCurrentChat);
+      setCurrentChat(setNewCurrentChat);
+    }
   };
 
   return (

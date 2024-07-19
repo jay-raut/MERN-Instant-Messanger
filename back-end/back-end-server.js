@@ -81,11 +81,21 @@ io.on("connection", (socket) => {
     if (room.users.length <= 2) {
       room.isGroupChat = false;
     }
-    socket.to(room._id).emit("user-left", user, room);
-    console.log("left chat " + room._id + " user " + user.username);
+    room.users.forEach((send_user) => {
+      if (send_user._id !== user._id) {
+        socket.in(send_user._id).emit("user-left", user, room);
+      }
+    });
   });
 
   socket.on("add-user", (room, user) => {
-    socket.to(room._id).emit("user-added", user, room);
+    if (room.users.length > 2) {
+      room.isGroupChat = true;
+    }
+    room.users.forEach((send_user) => {
+      if (send_user._id !== user._id) {
+        socket.in(send_user._id).emit("user-added", user, room);
+      }
+    });
   });
 });
