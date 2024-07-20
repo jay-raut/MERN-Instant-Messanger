@@ -116,4 +116,72 @@ router.get("/profile", (req, res) => {
   });
 });
 
+router.post("/password", (req, res) => {
+  const { token } = req.cookies;
+
+  if (!token) {
+    return res.status(400).json({ message: "No token provided" });
+  }
+
+  jwt.verify(token, secret, {}, async (err, info) => {
+    if (err) {
+      return res.status(403).json({ message: "Invalid token" });
+    }
+    try {
+      const { newPassword, oldPassword } = req.body;
+      const userDoc = await User.findById(info.userID);
+      if (!userDoc) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      const passwordResult = bcrypt.compareSync(oldPassword, userDoc.password);
+      if (!passwordResult) {
+        return res.status(401).json({ message: "Incorrect old password" });
+      }
+      userDoc.password = bcrypt.hashSync(newPassword, 10);
+      await userDoc.save();
+
+      res.status(200).json({ message: "Password changed successfully" });
+    } catch (error) {
+      res.status(500).json({ message: "Error changing password", error });
+      console.error("Error changing password:", error);
+    }
+  });
+});
+
+router.post("/username", (req, res) => {
+  const { token } = req.cookies;
+  if (!token) {
+    return res.status(400).json({ message: "No token provided" });
+  }
+
+  jwt.verify(token, secret, {}, async (err, info) => {
+    if (err) {
+      return res.status(403).json({ message: "Invalid token" });
+    }
+
+    try {
+      const { newUsername } = req.body;
+      const userDoc = await User.findByIdAndUpdate(info.userID, { username: newUsername });
+      if (!userDoc) {
+        return res.status(400).json({ message: "User could not be found" });
+      }
+      const token = generateToken({
+        firstname: userDoc.first_name,
+        lastname: userDoc.last_name,
+        username: userDoc.username,
+        userID: userDoc._id,
+      });
+      res.cookie("token", token).json({
+        first_name: userDoc.first_name,
+        last_name: userDoc.last_name,
+        _id: userDoc._id,
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Error changing username. Username may already exist" });
+      console.error("Error changing username:", error);
+    }
+  });
+});
+
 module.exports = router;
