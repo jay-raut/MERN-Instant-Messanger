@@ -11,7 +11,9 @@ export default function UserChats({ setGroupChatDialogOpen }) {
     }
   }, [currentChat]);
 
-
+  const truncateText = (text, length) => {
+    return text.length > length ? text.substring(0, length) + '...' : text;
+  };
 
   function compareChatID(chat1, chat2) {
     return chat1?._id === chat2?._id;
@@ -79,16 +81,16 @@ export default function UserChats({ setGroupChatDialogOpen }) {
                     <Typography>{`${chat.users[0].first_name} ${chat.users[0].last_name}`}</Typography>
                     {chat.latestMessage ? (
                       <Typography>
-                        {chat.users[0].username}:{chat.latestMessage.content}
+                        {chat.users[0].username}:{truncateText(chat.latestMessage.content, 20)}
                       </Typography>
                     ) : (
                       <Typography>{`${chat.users[0].username}: No latest message`}</Typography>
                     )}
                   </Box>
                 ) : (
-                  <Box sx={{ marginLeft: 2 }}>
+                  <Box sx={{ marginLeft: 2}}>
                     <Typography>{chat.chatname}</Typography>
-                    {chat.latestMessage ? <Typography>{chat.latestMessage.content}</Typography> : <Typography>No latest message</Typography>}
+                    {chat.latestMessage ? <Typography sx={{overflow:"hidden"}}>{truncateText(chat.latestMessage.content, 20)}</Typography> : <Typography>No latest message</Typography>}
                   </Box>
                 )}
               </ListItem>

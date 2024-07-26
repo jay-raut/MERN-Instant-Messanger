@@ -6,7 +6,7 @@ export default function MessageComponent({ message, isCurrentUser }) {
   const createdAt = new Date(message.createdAt).toLocaleString();
 
   return (
-    <Box justifyContent={isCurrentUser ? "flex-end" : "flex-start"} display="flex" alignItems="center" mb={2}>
+    <Box justifyContent={isCurrentUser ? "flex-end" : "flex-start"} display="flex" mb={2}>
       <Avatar>{sender.first_name.charAt(0).toUpperCase()}</Avatar>
       <Box ml={2} maxWidth="70%">
         <Box display="flex" alignItems="center" gap={1} mb={1}>

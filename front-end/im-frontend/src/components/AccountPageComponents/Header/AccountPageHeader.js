@@ -127,7 +127,7 @@ export default function AccountPageHeader(setSnackBarMessage, setSnackBarVisible
             <Box sx={{ display: "flex", alignItems: "center" }}>
               <Tooltip title="To Chats">
                 <IconButton onClick={handleChatIcon}>
-                  <ExitToAppIcon sx={{ width: 32, height: 32, color: "white" }}></ExitToAppIcon>
+                  <ExitToAppIcon sx={{ width: 25, height: 25, color: "white" }}></ExitToAppIcon>
                 </IconButton>
               </Tooltip>
               <Typography marginLeft={"15px"} variant="h6" noWrap component="div" sx={{ display: { xs: "none", sm: "block" } }}>

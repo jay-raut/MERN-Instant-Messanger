@@ -18,7 +18,7 @@ export default function AccountChangePassword({openChangePasswordDialog}) {
               marginBottom: 3,
             },
           }}>
-          <Button variant="contained" onClick={() => openChangePasswordDialog(true)}>
+          <Button sx={{marginTop:1}} variant="contained" onClick={() => openChangePasswordDialog(true)}>
             Change password
           </Button>
         </Box>
