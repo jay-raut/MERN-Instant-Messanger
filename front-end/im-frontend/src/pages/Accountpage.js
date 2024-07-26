@@ -8,6 +8,7 @@ import AccountChangeInfo from "../components/AccountPageComponents/TabComponents
 import AccountChangePassword from "../components/AccountPageComponents/TabComponents/AccountChangePassword";
 import ChangeNameDialog from "../components/AccountPageComponents/DialogComponents/ChangeNameDialog";
 import ChangeUsernameDialog from "../components/AccountPageComponents/DialogComponents/ChangeUsernameDialog";
+import ChangePasswordDialog from "../components/AccountPageComponents/DialogComponents/ChangePasswordDialog";
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
 
@@ -22,6 +23,7 @@ export default function AccountPage() {
   const [tab, setTab] = useState(0);
   const [isNameChangeDialogOpen, setIsNameChangeDialogOpen] = useState(false);
   const [isUsernameChangeDialogOpen, setIsUsernameChangeDialogOpen] = useState(false);
+  const [isPasswordChangeDialogOpen, setIsPasswordChangeDialogOpen] = useState(false);
   const [isSnackBarVisible, setSnackBarVisible] = useState(false);
   const [snackBarMessage, setSnackBarMessage] = useState("");
   const handleTabChange = (event, newTab) => {
@@ -56,7 +58,7 @@ export default function AccountPage() {
             <AccountChangeInfo openNameChangeDialog={setIsNameChangeDialogOpen} openUsernameChangeDialog={setIsUsernameChangeDialogOpen} />
           </TabPanel>
           <TabPanel value={tab} index={2}>
-            <AccountChangePassword />
+            <AccountChangePassword openChangePasswordDialog={setIsPasswordChangeDialogOpen} />
           </TabPanel>
         </Box>
       </Box>
@@ -70,6 +72,11 @@ export default function AccountPage() {
         onClose={() => setIsUsernameChangeDialogOpen(false)}
         setSnackBarVisible={setSnackBarVisible}
         setSnackBarMessage={setSnackBarMessage}></ChangeUsernameDialog>
+      <ChangePasswordDialog
+        open={isPasswordChangeDialogOpen}
+        onClose={() => setIsPasswordChangeDialogOpen(false)}
+        setSnackBarVisible={setSnackBarVisible}
+        setSnackBarMessage={setSnackBarMessage}></ChangePasswordDialog>
       <SnackBar open={isSnackBarVisible} setOpen={setSnackBarVisible} message={snackBarMessage}></SnackBar>
     </Box>
   );

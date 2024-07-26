@@ -129,6 +129,9 @@ router.post("/password", (req, res) => {
     }
     try {
       const { newPassword, oldPassword } = req.body;
+      if (!newPassword || !oldPassword) {
+        return res.status(400).json({ message: "missing new or old password" });
+      }
       const userDoc = await User.findById(info.userID);
       if (!userDoc) {
         return res.status(404).json({ message: "User not found" });

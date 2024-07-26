@@ -28,7 +28,7 @@ export default function ChangeNameDialog({ open, onClose, setSnackBarVisible, se
         setUser({ ...user, firstname: newFirstName, lastname: newLastName });
         const allChatUsers = chats.flatMap((chat) => chat.users);
         const uniqueUsers = Array.from(new Set(allChatUsers.map((user) => user._id))).map((id) => allChatUsers.find((user) => user._id === id));
-        socket.emit("profile-update", { firstname: newFirstName, lastname: newLastName, username: user.username, _id:user.userID }, uniqueUsers);
+        socket.emit("profile-update", { firstname: newFirstName, lastname: newLastName, username: user.username, _id: user.userID }, uniqueUsers);
       } else {
         setSnackBarMessage("Could not change profile name. Try reloading");
         setSnackBarVisible(true);
@@ -57,8 +57,8 @@ export default function ChangeNameDialog({ open, onClose, setSnackBarVisible, se
       <DialogTitle>Change name</DialogTitle>
       <DialogContent>
         <DialogContentText>Change your profile name here</DialogContentText>
-        <TextField autoFocus margin="dense" id="firstname" name="First Name" type="text" fullWidth variant="standard" value={newFirstName} onChange={(e) => setNewFirstName(e.target.value)} />
-        <TextField autoFocus margin="dense" id="lastname" name="Last Name" type="text" fullWidth variant="standard" value={newLastName} onChange={(e) => setNewLastName(e.target.value)} />
+        <TextField margin="dense" id="firstname" name="First Name" type="text" fullWidth variant="standard" value={newFirstName} onChange={(e) => setNewFirstName(e.target.value)} />
+        <TextField margin="dense" id="lastname" name="Last Name" type="text" fullWidth variant="standard" value={newLastName} onChange={(e) => setNewLastName(e.target.value)} />
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>

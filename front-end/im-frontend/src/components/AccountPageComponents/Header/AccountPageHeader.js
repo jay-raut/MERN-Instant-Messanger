@@ -12,9 +12,10 @@ import NotificationsIcon from "@mui/icons-material/Notifications";
 import MoreIcon from "@mui/icons-material/MoreVert";
 import { ChatState } from "../../../Context/ChatProvider";
 import LogoutIcon from "@mui/icons-material/Logout";
-import { Avatar } from "@mui/material";
+import { Avatar, Tooltip } from "@mui/material";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-export default function AccountPageHeader( setSnackBarMessage, setSnackBarVisible) {
+import ExitToAppIcon from "@mui/icons-material/ExitToApp";
+export default function AccountPageHeader(setSnackBarMessage, setSnackBarVisible) {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
   const { user, socket } = ChatState();
@@ -39,16 +40,19 @@ export default function AccountPageHeader( setSnackBarMessage, setSnackBarVisibl
     setMobileMoreAnchorEl(event.currentTarget);
   };
 
+  const handleChatIcon = (event) => {
+    window.location.href = "/chats";
+  };
   const handleLogout = async () => {
     console.log("logout");
     socket.disconnect();
     const pastDate = new Date(0).toUTCString();
     document.cookie = `token=; expires=${pastDate}; path=/;`;
-    window.location.href = "/"
+    window.location.href = "/";
   };
 
   const handleMyAccount = () => {
-    window.location.href = "/myaccount"
+    window.location.href = "/myaccount";
   };
 
   const renderMenu = (
@@ -120,9 +124,17 @@ export default function AccountPageHeader( setSnackBarMessage, setSnackBarVisibl
       <Box>
         <AppBar position="sticky" sx={{ position: "sticky" }}>
           <Toolbar>
-            <Typography marginLeft={"15px"} variant="h6" noWrap component="div" sx={{ display: { xs: "none", sm: "block" } }}>
-              Messenger
-            </Typography>
+            <Box sx={{ display: "flex", alignItems: "center" }}>
+              <Tooltip title="To Chats">
+                <IconButton onClick={handleChatIcon}>
+                  <ExitToAppIcon sx={{ width: 32, height: 32, color: "white" }}></ExitToAppIcon>
+                </IconButton>
+              </Tooltip>
+              <Typography marginLeft={"15px"} variant="h6" noWrap component="div" sx={{ display: { xs: "none", sm: "block" } }}>
+                Messenger
+              </Typography>
+            </Box>
+
             <Box sx={{ flexGrow: 1 }} />
             <Box sx={{ display: { xs: "none", md: "flex" } }}>
               <IconButton size="large" edge="end" aria-label="account of current user" aria-controls={"account-menu"} aria-haspopup="true" onClick={handleProfileMenuOpen} color="inherit">

@@ -53,7 +53,7 @@ export default function ChangeUsernameDialog({ open, onClose, setSnackBarVisible
       <DialogTitle>Change username</DialogTitle>
       <DialogContent>
         <DialogContentText>Change your username here</DialogContentText>
-        <TextField autoFocus margin="dense" id="firstname" name="First Name" type="text" fullWidth variant="standard" value={newUsername} onChange={(e) => setNewUsername(e.target.value)} />
+        <TextField margin="dense" id="firstname" name="First Name" type="text" fullWidth variant="standard" value={newUsername} onChange={(e) => setNewUsername(e.target.value)} />
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>
