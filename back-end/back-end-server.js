@@ -105,6 +105,14 @@ io.on("connection", (socket) => {
     })
   })
 
+  socket.on("profile-update", (updatedUser, notifyUsers) => {
+    console.log(updatedUser);
+    console.log(notifyUsers);
+    notifyUsers.forEach((user) => {
+      socket.in(user._id).emit("update-profile", updatedUser);
+    })
+  })
+
   socket.on("disconnect", () => {
     console.log('user disconnected');
   })

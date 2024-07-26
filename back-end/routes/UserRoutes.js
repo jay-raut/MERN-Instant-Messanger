@@ -141,7 +141,18 @@ router.post("/password", (req, res) => {
       userDoc.password = bcrypt.hashSync(newPassword, 10);
       await userDoc.save();
 
-      res.status(200).json({ message: "Password changed successfully" });
+      const token = generateToken({
+        firstname: userDoc.first_name,
+        lastname: userDoc.last_name,
+        username: userDoc.username,
+        userID: userDoc._id,
+      });
+
+      res.cookie("token", token).json({
+        first_name: userDoc.first_name,
+        last_name: userDoc.last_name,
+        _id: userDoc._id,
+      });
     } catch (error) {
       res.status(500).json({ message: "Error changing password", error });
       console.error("Error changing password:", error);
@@ -162,7 +173,7 @@ router.post("/username", (req, res) => {
 
     try {
       const { newUsername } = req.body;
-      const userDoc = await User.findByIdAndUpdate(info.userID, { username: newUsername });
+      const userDoc = await User.findByIdAndUpdate(info.userID, { username: newUsername }, { new: true });
       if (!userDoc) {
         return res.status(400).json({ message: "User could not be found" });
       }
@@ -172,6 +183,7 @@ router.post("/username", (req, res) => {
         username: userDoc.username,
         userID: userDoc._id,
       });
+
       res.cookie("token", token).json({
         first_name: userDoc.first_name,
         last_name: userDoc.last_name,
@@ -184,4 +196,40 @@ router.post("/username", (req, res) => {
   });
 });
 
+router.post("/profile-name", (req, res) => {
+  const { token } = req.cookies;
+  if (!token) {
+    return res.status(400).json({ message: "No token provided" });
+  }
+  jwt.verify(token, secret, {}, async (err, info) => {
+    if (err) {
+      return res.status(403).json({ message: "Invalid token" });
+    }
+    try {
+      const { firstname, lastname } = req.body;
+      if (!firstname || !lastname) {
+        return res.status(400).json({ error: "Missing fields" });
+      }
+      const userDoc = await User.findByIdAndUpdate(info.userID, { first_name: firstname, last_name: lastname }, { new: true });
+      if (!userDoc) {
+        return res.status(400).json({ message: "User could not be found" });
+      }
+
+      const token = generateToken({
+        firstname: userDoc.first_name,
+        lastname: userDoc.last_name,
+        username: userDoc.username,
+        userID: userDoc._id,
+      });
+      res.cookie("token", token).json({
+        first_name: userDoc.first_name,
+        last_name: userDoc.last_name,
+        _id: userDoc._id,
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Error while changing profile name" });
+      console.error(error);
+    }
+  });
+});
 module.exports = router;

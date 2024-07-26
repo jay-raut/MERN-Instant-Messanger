@@ -10,12 +10,11 @@ import Menu from "@mui/material/Menu";
 import AccountCircle from "@mui/icons-material/AccountCircle";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import MoreIcon from "@mui/icons-material/MoreVert";
-import { ChatState } from "../../Context/ChatProvider";
+import { ChatState } from "../../../Context/ChatProvider";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { Avatar } from "@mui/material";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-import SearchSideDrawer from "./SidedrawerComponents/SearchSideDrawer";
-export default function Header( setSnackBarMessage, setSnackBarVisible) {
+export default function AccountPageHeader( setSnackBarMessage, setSnackBarVisible) {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
   const { user, socket } = ChatState();
@@ -121,19 +120,11 @@ export default function Header( setSnackBarMessage, setSnackBarVisible) {
       <Box>
         <AppBar position="sticky" sx={{ position: "sticky" }}>
           <Toolbar>
-            <SearchSideDrawer></SearchSideDrawer>
             <Typography marginLeft={"15px"} variant="h6" noWrap component="div" sx={{ display: { xs: "none", sm: "block" } }}>
               Messenger
             </Typography>
             <Box sx={{ flexGrow: 1 }} />
             <Box sx={{ display: { xs: "none", md: "flex" } }}>
-              <IconButton size="large" aria-label="show notifications" color="inherit">
-                <Badge badgeContent={201} color="error">
-                  {" "}
-                  {/* badge for notification bell*/}
-                  <NotificationsIcon />
-                </Badge>
-              </IconButton>
               <IconButton size="large" edge="end" aria-label="account of current user" aria-controls={"account-menu"} aria-haspopup="true" onClick={handleProfileMenuOpen} color="inherit">
                 <Avatar sx={{ width: 32, height: 32 }}>{user.firstname.charAt(0).toUpperCase()}</Avatar>
               </IconButton>

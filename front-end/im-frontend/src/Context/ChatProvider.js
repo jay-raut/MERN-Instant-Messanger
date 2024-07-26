@@ -40,10 +40,11 @@ const ChatProvider = ({ children }) => {
         credentials: "include",
       });
       if (response.ok) {
+       
         const data = await response.json();
+        console.log(data);
         setUser(data);
         getUserChats();
-        navigate("/chats");
         const newSocketConnection = initializeSocket(data);
         setSocket(newSocketConnection);
       } else {

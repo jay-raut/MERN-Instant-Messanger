@@ -109,6 +109,36 @@ export default function ChatWindow({ setSnackBarMessage, setSnackBarVisible }) {
     };
   }, [currentChat, chats]);
 
+  useEffect(() => {
+    socket.on("update-profile", handleProfileUpdate);
+    return () => {
+      socket.off("update-profile", handleProfileUpdate);
+    };
+  });
+
+  const handleProfileUpdate = (updatedProfile) => {
+    console.log(updatedProfile);
+    console.log(currentChatMessages);
+    console.log(chats);
+    const newChats = chats.map((chat) => ({
+      ...chat,
+      users: chat.users.map((user) =>
+        user._id === updatedProfile._id ? { ...user, first_name: updatedProfile.firstname, last_name: updatedProfile.lastname, username: updatedProfile.username } : user
+      ),
+    }));
+    setChats(newChats);
+    if (currentChat) {
+      const setNewCurrentChat = newChats.find((chat) => chat._id === currentChat._id);
+      setCurrentChat(setNewCurrentChat);
+      const newCurrentChatMessages = currentChatMessages.map((message) => ({
+        ...message,
+        sender:
+          message.sender._id === updatedProfile._id ? { ...message.sender, first_name: updatedProfile.firstname, last_name: updatedProfile.lastname, username: updatedProfile.username } : message.sender,
+      }));
+      setCurrentChatMessages(newCurrentChatMessages);
+    }
+  };
+
   const handleRenamedChat = (newName, room) => {
     console.log(newName);
     console.log(room);

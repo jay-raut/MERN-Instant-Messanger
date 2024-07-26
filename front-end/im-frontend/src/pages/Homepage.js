@@ -1,4 +1,4 @@
-import React, {useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Container, Box, Typography, Tabs, Tab } from "@mui/material";
 import LoginForm from "../components/HomePageComponents/Forms/LoginForm";
 import RegisterForm from "../components/HomePageComponents/Forms/RegisterForm";
@@ -11,8 +11,8 @@ export default function Homepage() {
   const { user } = ChatState();
   useEffect(() => {
     if (user && Object.keys(user).length > 0) {
-      console.log('User logged in, redirecting to /chats');
-      
+      console.log("User logged in, redirecting to /chats");
+      navigate("/chats");
     }
   }, [user, navigate]);
 
