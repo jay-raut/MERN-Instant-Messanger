@@ -38,7 +38,6 @@ export default function ChangeUsernameDialog({ open, onClose, setSnackBarVisible
       setSnackBarMessage("An error occurred while changing username. Try reloading");
       setSnackBarVisible(true);
     }
-    onClose();
   }
   useEffect(() => {
     setNewUsername(user.username);
