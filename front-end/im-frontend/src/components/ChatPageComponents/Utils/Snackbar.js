@@ -16,7 +16,7 @@ export default function SnackBar({ open, setOpen, message , onClick, onClickText
 
   const action = (
     <React.Fragment>
-      <Button color="secondary" size="small" onClick={onClick}>
+      <Button color="primary" size="small" onClick={onClick}>
         {onClickText}
       </Button>
       <IconButton size="small" aria-label="close" color="inherit" onClick={handleClose}>

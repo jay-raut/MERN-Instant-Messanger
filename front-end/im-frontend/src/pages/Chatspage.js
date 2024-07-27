@@ -10,7 +10,10 @@ export default function Chatpage() {
   const [groupChatDialogOpen, setGroupChatDialogOpen] = useState(false);
   const [snackBarVisible, setSnackBarVisible] = useState(false);
   const [snackBarMessage, setSnackBarMessage] = useState("");
-  const { user } = ChatState();
+  const [chatNotificationVisible, setChatNotificationVisible] = useState(false);
+  const [chatNotificationContent, setChatNotificationContent] = useState("");
+  const [newCurrentChat, setNewCurrentChat] = useState(null);
+  const { user, setCurrentChat } = ChatState();
   return (
     user &&
     Object.keys(user).length > 0 && (
@@ -23,10 +26,22 @@ export default function Chatpage() {
             <UserChats setGroupChatDialogOpen={setGroupChatDialogOpen} />
           </Box>
           <Box sx={{ width: "100%", maxHeight: "100%", margin: "5px" }}>
-            <ChatWindow setSnackBarMessage={setSnackBarMessage} setSnackBarVisible={setSnackBarVisible} />
+            <ChatWindow
+              setSnackBarMessage={setSnackBarMessage}
+              setSnackBarVisible={setSnackBarVisible}
+              setChatNotificationVisible={setChatNotificationVisible}
+              setChatNotificationContent={setChatNotificationContent}
+              setNewCurrentChat={setNewCurrentChat}
+            />
           </Box>
         </Box>
         <SnackBar open={snackBarVisible} setOpen={setSnackBarVisible} message={snackBarMessage}></SnackBar>
+        <SnackBar
+          open={chatNotificationVisible}
+          setOpen={setChatNotificationVisible}
+          message={chatNotificationContent}
+          onClick={() => setCurrentChat(newCurrentChat)}
+          onClickText="Go To Chat"></SnackBar>
       </>
     )
   );

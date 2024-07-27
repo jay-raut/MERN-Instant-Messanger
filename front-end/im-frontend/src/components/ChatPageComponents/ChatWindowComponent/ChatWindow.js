@@ -8,7 +8,7 @@ import ChatDetailsDialog from "./ChatDetailsDialog";
 import MessageComponent from "./MessageComponent";
 import { useRef } from "react";
 
-export default function ChatWindow({ setSnackBarMessage, setSnackBarVisible }) {
+export default function ChatWindow({ setSnackBarMessage, setSnackBarVisible, setChatNotificationVisible, setChatNotificationContent, setNewCurrentChat }) {
   const { currentChat, setCurrentChat, currentChatMessages, setCurrentChatMessages, user, socket, chats, setChats, forceStateUpdate, setForceStateUpdate } = ChatState();
   const [chatDetailsDialogOpen, setChatDetailsDialogOpen] = useState(false);
   const [localMessageID, setLocalMessageID] = useState(0);
@@ -133,7 +133,9 @@ export default function ChatWindow({ setSnackBarMessage, setSnackBarVisible }) {
       const newCurrentChatMessages = currentChatMessages.map((message) => ({
         ...message,
         sender:
-          message.sender._id === updatedProfile._id ? { ...message.sender, first_name: updatedProfile.firstname, last_name: updatedProfile.lastname, username: updatedProfile.username } : message.sender,
+          message.sender._id === updatedProfile._id
+            ? { ...message.sender, first_name: updatedProfile.firstname, last_name: updatedProfile.lastname, username: updatedProfile.username }
+            : message.sender,
       }));
       setCurrentChatMessages(newCurrentChatMessages);
     }
@@ -182,24 +184,31 @@ export default function ChatWindow({ setSnackBarMessage, setSnackBarVisible }) {
       setCurrentChatMessages((prevMessages) => [...prevMessages, receivedMessage.messageContent]);
       return;
     }
-    const chatExistsIndex = chats.findIndex((search_chat) => search_chat._id === receivedMessage.groupChat._id);
-    if (chatExistsIndex === -1) {
+    var chatIndex = chats.findIndex((search_chat) => search_chat._id === receivedMessage.groupChat._id);
+    var changeCurrentChat = null;
+    if (chatIndex === -1) {
       const index = receivedMessage.groupChat.users.findIndex((chat_user) => chat_user._id === user.userID);
       const { groupChat } = receivedMessage;
       groupChat.users[index] = receivedMessage.messageContent.sender;
       setChats([groupChat, ...chats]);
+      chatIndex = index;
+      changeCurrentChat = groupChat;
     } else {
-      //todo implement notifications
-      const newChats = chats.map((chat, index) => (index === chatExistsIndex ? { ...chat, latestMessage: receivedMessage.groupChat.latestMessage } : chat));
+      const newChats = chats.map((chat, index) => (index === chatIndex ? { ...chat, latestMessage: receivedMessage.groupChat.latestMessage } : chat));
+      changeCurrentChat = newChats[chatIndex];
       if (newChats.length > 0 && receivedMessage.groupChat._id !== newChats[0]._id) {
         //if its not at the top then move it to the top.
         console.log("moved to top");
         const currentChatIndex = newChats.findIndex((search_chat) => search_chat._id === receivedMessage.groupChat._id);
         const push_chat = newChats.splice(currentChatIndex, 1)[0];
         newChats.unshift(push_chat);
+        changeCurrentChat = push_chat;
       }
       setChats(newChats);
     }
+    setChatNotificationContent(receivedMessage.messageContent.sender.username + ": " + receivedMessage.messageContent.content);
+    setChatNotificationVisible(true);
+    setNewCurrentChat(changeCurrentChat);
   };
 
   const handleUserLeft = (leftUser, room) => {
