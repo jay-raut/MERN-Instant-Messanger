@@ -102,18 +102,18 @@ io.on("connection", (socket) => {
   socket.on("rename-chat", (room, newName) => {
     room.users.forEach((user) => {
       socket.in(user._id).emit("chat-renamed", newName, room);
-    })
-  })
+    });
+  });
 
   socket.on("profile-update", (updatedUser, notifyUsers) => {
     console.log(updatedUser);
     console.log(notifyUsers);
     notifyUsers.forEach((user) => {
       socket.in(user._id).emit("update-profile", updatedUser);
-    })
-  })
+    });
+  });
 
   socket.on("disconnect", () => {
-    console.log('user disconnected');
-  })
+    console.log("user disconnected");
+  });
 });
