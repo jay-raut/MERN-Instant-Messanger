@@ -4,7 +4,7 @@
 
 <h2>Project Screenshots:</h2>
 
-<img src="https://github.com/jay-raut/MERN-Instant-Messanger/blob/main/Screenshot_26-7-2024_234023_localhost.jpeg?raw=true" alt=project-screenshot/">
+<img src="https://github.com/jay-raut/MERN-Instant-Messanger/blob/main/Screenshot_26-7-2024_234023_localhost.jpeg?raw=true" alt="project-screenshot/">
 
 <img src="https://github.com/jay-raut/MERN-Instant-Messanger/blob/main/Screenshot_26-7-2024_233951_localhost.jpeg?raw=true" alt="project-screenshot/">
 
